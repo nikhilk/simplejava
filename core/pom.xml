@@ -7,14 +7,6 @@
     <artifactId>jist</artifactId>
     <version>0.1</version>
   </parent>
-  <artifactId>jist-app</artifactId>
+  <artifactId>jist-core</artifactId>
   <packaging>jar</packaging>
-
-  <dependencies>
-    <dependency>
-      <groupId>net.nikhilk.jist</groupId>
-      <artifactId>jist-core</artifactId>
-      <version>0.1</version>
-    </dependency>
-  </dependencies>
 </project>
