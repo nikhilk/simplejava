@@ -10,6 +10,12 @@
   <artifactId>jist-app</artifactId>
   <packaging>jar</packaging>
 
+  <build>
+    <directory>${project.basedir}/bin</directory>
+    <sourceDirectory>${project.basedir}/src</sourceDirectory>
+    <testSourceDirectory>${project.basedir}/test</testSourceDirectory>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>net.nikhilk.jist</groupId>

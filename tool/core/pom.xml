@@ -9,4 +9,10 @@
   </parent>
   <artifactId>jist-core</artifactId>
   <packaging>jar</packaging>
+
+  <build>
+    <directory>${project.basedir}/bin</directory>
+    <sourceDirectory>${project.basedir}/src</sourceDirectory>
+    <testSourceDirectory>${project.basedir}/test</testSourceDirectory>
+  </build>
 </project>
