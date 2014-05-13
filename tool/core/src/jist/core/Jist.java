@@ -4,7 +4,15 @@
 
 package jist.core;
 
-public abstract class Jist {
+public final class Jist {
 
-    public abstract void execute();
+    private final String _code;
+
+    public Jist(String code) {
+        _code = code;
+    }
+
+    public String getCode() {
+        return _code;
+    }
 }
