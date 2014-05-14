@@ -8,7 +8,7 @@ import jist.core.*;
 
 public interface JistRuntime {
 
-    public void execute(Jist jist, JistSession session) throws Exception;
+    public JistSession createSession();
 
-    public void initializeSession(JistSession session);
+    public void execute(Jist jist) throws Exception;
 }

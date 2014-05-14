@@ -27,18 +27,19 @@ public final class JavaRuntime implements JistRuntime {
         return String.format(JAVA_SOURCE_TEMPLATE, name, code);
     }
 
+    @Override
+    public JistSession createSession() {
+        return new JistSession(this);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
-    public void execute(Jist jist, JistSession session) throws Exception {
+    public void execute(Jist jist) throws Exception {
         String className = RandomStringUtils.randomAlphabetic(8);
         String source = createJavaSource(className, jist.getCode());
 
         Class<Runnable> jistClass = (Class<Runnable>)_classFactory.compile(className, source);
         Runnable jistInstance = jistClass.newInstance();
         jistInstance.run();
-    }
-
-    @Override
-    public void initializeSession(JistSession session) {
     }
 }

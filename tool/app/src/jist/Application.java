@@ -16,10 +16,9 @@ public final class Application {
         JistClassFactory classFactory = new JavaClassFactory();
         JistRuntime runtime = new JavaRuntime(classFactory);
 
-        Jist jist = new Jist(code);
-        JistSession session = new JistSession();
+        JistSession session = runtime.createSession();
+        Jist jist = new Jist(session, code);
 
-        runtime.initializeSession(session);
-        runtime.execute(jist, session);
+        runtime.execute(jist);
     }
 }
