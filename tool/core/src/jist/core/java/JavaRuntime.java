@@ -2,7 +2,7 @@
 // jist/core
 //
 
-package jist.core.services.java;
+package jist.core.java;
 
 import jist.core.*;
 import org.apache.commons.lang3.*;

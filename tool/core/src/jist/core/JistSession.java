@@ -5,7 +5,6 @@
 package jist.core;
 
 import java.util.*;
-import jist.core.services.*;
 
 public final class JistSession {
 

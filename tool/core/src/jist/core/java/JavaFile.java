@@ -2,7 +2,7 @@
 // jist/core
 //
 
-package jist.core.services.java;
+package jist.core.java;
 
 import java.net.*;
 import javax.tools.*;
