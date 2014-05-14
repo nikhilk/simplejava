@@ -2,7 +2,7 @@
 // jist/core
 //
 
-package jist.core.services;
+package jist.core;
 
 import jist.core.*;
 

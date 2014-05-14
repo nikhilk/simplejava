@@ -5,7 +5,6 @@
 package jist;
 
 import jist.core.*;
-import jist.core.services.*;
 import jist.core.services.java.*;
 
 public final class Application {

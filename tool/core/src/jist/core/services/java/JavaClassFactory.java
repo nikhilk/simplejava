@@ -6,7 +6,7 @@ package jist.core.services.java;
 
 import java.util.*;
 import javax.tools.*;
-import jist.core.services.*;
+import jist.core.JistClassFactory;
 
 public final class JavaClassFactory implements JistClassFactory {
 

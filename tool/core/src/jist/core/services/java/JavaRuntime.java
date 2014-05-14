@@ -5,7 +5,6 @@
 package jist.core.services.java;
 
 import jist.core.*;
-import jist.core.services.*;
 import org.apache.commons.lang3.*;
 
 public final class JavaRuntime implements JistRuntime {
