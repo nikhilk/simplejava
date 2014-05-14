@@ -5,6 +5,7 @@
 package jist.core.java;
 
 import jist.core.*;
+import jist.core.java.expanders.*;
 import org.apache.commons.lang3.*;
 
 public final class JavaRuntime implements JistRuntime {
@@ -28,7 +29,11 @@ public final class JavaRuntime implements JistRuntime {
 
     @Override
     public JistSession createSession() {
-        return new JistSession(this);
+        JistSession session = new JistSession(this);
+
+        session.registerExpander("text", new TextExpander());
+
+        return session;
     }
 
     @SuppressWarnings("unchecked")

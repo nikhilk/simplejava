@@ -5,6 +5,7 @@
 package jist;
 
 import jist.core.*;
+import jist.core.common.*;
 import jist.core.java.*;
 
 public final class Application {
@@ -16,8 +17,9 @@ public final class Application {
         JistRuntime runtime = new JavaRuntime(classFactory);
 
         JistSession session = runtime.createSession();
-        Jist jist = new Jist(session, code);
+        JistPreprocessor preprocessor = new JistPreprocessor(session);
 
+        Jist jist = new Jist(session, preprocessor.preprocessCode(code));
         runtime.execute(jist);
     }
 }
