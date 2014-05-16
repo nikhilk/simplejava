@@ -5,13 +5,17 @@
 package jist.core;
 
 import java.util.*;
+import org.apache.commons.lang3.*;
 
 public final class JistSession {
 
-    private JistRuntime _runtime;
-    private HashSet<String> _imports;
+    private final JistRuntime _runtime;
+    private final HashSet<String> _imports;
 
-    private HashMap<String, JistExpander> _expanders;
+    private final HashMap<String, JistExpander> _expanders;
+
+    private String _className;
+    private String _packageName;
 
     public JistSession(JistRuntime runtime) {
         _runtime = runtime;
@@ -24,8 +28,26 @@ public final class JistSession {
         _imports.add(name);
     }
 
+    public String getClassName() {
+        if (_className == null) {
+            _className = RandomStringUtils.randomAlphabetic(8);
+        }
+        return _className;
+    }
+
     public JistExpander getExpander(String name) {
         return _expanders.get(name);
+    }
+
+    public String getFullName() {
+        String packageName = getPackageName();
+
+        if (packageName == null) {
+            return getClassName();
+        }
+        else {
+            return packageName + "." + getClassName();
+        }
     }
 
     public String[] getImports() {
@@ -37,11 +59,34 @@ public final class JistSession {
         return names;
     }
 
+    public String getPackageName() {
+        return _packageName;
+    }
+
     public JistRuntime getRuntime() {
         return _runtime;
     }
 
-    public void registerExpander(String name, JistExpander expander) {
+    public JistSession registerExpander(String name, JistExpander expander) {
         _expanders.put(name, expander);
+        return this;
+    }
+
+    public JistSession specifyClassName(String name) throws JistErrorException {
+        if (_className != null) {
+            throw new JistErrorException("Class name cannot be set multiple times.");
+        }
+
+        _className = name;
+        return this;
+    }
+
+    public JistSession specifyPackageName(String name) throws JistErrorException {
+        if (_packageName != null) {
+            throw new JistErrorException("Package name cannot be set multiple times.");
+        }
+
+        _packageName = name;
+        return this;
     }
 }

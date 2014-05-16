@@ -15,7 +15,7 @@ public final class JavaRuntime implements JistRuntime {
 "    public void run() {\n" +
 "        %s\n" +
 "    }\n" +
-"}";
+"}\n";
 
     private JistClassFactory _classFactory;
 
@@ -23,26 +23,44 @@ public final class JavaRuntime implements JistRuntime {
         _classFactory = classFactory;
     }
 
-    private String createJavaSource(String name, String code) {
-        return String.format(JAVA_SOURCE_TEMPLATE, name, code);
+    private String createJavaSource(Jist jist) {
+        JistSession session = jist.getSession();
+        StringBuilder sourceBuilder = new StringBuilder();
+
+        String packageName = session.getPackageName();
+        if (!StringUtils.isEmpty(packageName)) {
+            sourceBuilder.append("package ");
+            sourceBuilder.append(packageName);
+            sourceBuilder.append(";\n\n");
+        }
+
+        for (String importedReference : session.getImports()) {
+            sourceBuilder.append("import ");
+            sourceBuilder.append(importedReference);
+            sourceBuilder.append(";\n");
+        }
+
+        sourceBuilder.append("\n");
+
+        String classCode = String.format(JAVA_SOURCE_TEMPLATE,
+                                         session.getClassName(), jist.getCompilableCode());
+        sourceBuilder.append(classCode);
+
+        return sourceBuilder.toString();
     }
 
     @Override
     public JistSession createSession() {
         JistSession session = new JistSession(this);
-
-        session.registerExpander("text", new TextExpander());
-
-        return session;
+        return session.registerExpander("text", new TextExpander());
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void execute(Jist jist) throws Exception {
-        String className = RandomStringUtils.randomAlphabetic(8);
-        String source = createJavaSource(className, jist.getCode());
+        String source = createJavaSource(jist);
 
-        Class<Runnable> jistClass = (Class<Runnable>)_classFactory.compile(className, source);
+        Class<Runnable> jistClass = (Class<Runnable>)_classFactory.compile(jist, source);
         Runnable jistInstance = jistClass.newInstance();
         jistInstance.run();
     }

@@ -12,6 +12,9 @@ public final class Application {
 
     public static void main(String[] args) throws Exception {
         String code =
+"package aaa;\n" +
+"class bbb;\n" +
+"import java.util.*;\n" +
 "System.out.println(\"Hello World!\");\n" +
 "System.out.println(\"jist completed...\");\n" +
 "\n" +
@@ -27,15 +30,18 @@ public final class Application {
 "%text -> buz << END\n" +
 "    blah blah blah\n" +
 "    blah blue bleeEND\n" +
-"System.out.println(buz);";
+"System.out.println(buz);\n" +
+"System.out.println(this.getClass().getName());";
 
         JistClassFactory classFactory = new JavaClassFactory();
         JistRuntime runtime = new JavaRuntime(classFactory);
 
         JistSession session = runtime.createSession();
-        JistPreprocessor preprocessor = new JistPreprocessor(session);
 
-        Jist jist = new Jist(session, preprocessor.preprocessCode(code));
+        JistPreprocessor preprocessor = new JistPreprocessor(session);
+        String compilableCode = preprocessor.preprocessCode(code);
+
+        Jist jist = new Jist(session, code, compilableCode);
         runtime.execute(jist);
     }
 }

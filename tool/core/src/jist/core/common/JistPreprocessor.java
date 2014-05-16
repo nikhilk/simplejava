@@ -16,9 +16,11 @@ public final class JistPreprocessor {
         Pattern.compile("^%(?<m>[a-z]+)\\s+->\\s+(?<decl>[a-z_][a-z_0-9]*)(\\s+<<(?<trim>-)?\\s*(?<end>[^\\s]+))?$",
                         Pattern.CASE_INSENSITIVE);
 
+    private final static Pattern pragmaPattern =
+        Pattern.compile("^(?<pragma>(import)|(class)|(package)|(require))\\s+(?<name>[a-zA-Z0-9_\\.\\*:]+)\\s*;$");
+
     private JistSession _session;
 
-    private int _lineNumber;
     private BufferedReader _codeReader;
     private CodeWriter _codeWriter;
 
@@ -29,19 +31,24 @@ public final class JistPreprocessor {
     public String preprocessCode(String code) throws IOException {
         _codeReader = new BufferedReader(new StringReader(code));
         _codeWriter = new CodeWriter();
-        _lineNumber = 0;
 
+        int lineNumber = 0;
         try {
             String line = null;
             while ((line = _codeReader.readLine()) != null) {
-                _lineNumber++;
+                lineNumber++;
 
                 String trimmedLine = line.trim();
-                if (trimmedLine.startsWith("#")) {
-                    processPragma(trimmedLine);
+                if (trimmedLine.startsWith("%")) {
+                    int linesConsumed = processMacro(trimmedLine);
+                    lineNumber += linesConsumed;
+
+                    continue;
                 }
-                else if (trimmedLine.startsWith("%")) {
-                    processMacro(trimmedLine);
+
+                Matcher matcher = pragmaPattern.matcher(trimmedLine);
+                if (matcher.matches()) {
+                    processPragma(matcher.group("pragma"), matcher.group("name"));
                 }
                 else {
                     _codeWriter.writeLine(line);
@@ -51,7 +58,7 @@ public final class JistPreprocessor {
             code = _codeWriter.toString();
         }
         catch (JistErrorException e) {
-            System.out.println("Error: " + e.getMessage() + "[" + _lineNumber + "]");
+            System.out.println("Error: " + e.getMessage() + "[" + lineNumber + "]");
         }
         finally {
             _codeReader.close();
@@ -60,7 +67,7 @@ public final class JistPreprocessor {
         return code;
     }
 
-    private void processMacro(String startLine) throws IOException, JistErrorException {
+    private int processMacro(String startLine) throws IOException, JistErrorException {
         int lineCount = 0;
 
         Matcher m = macroPattern.matcher(startLine);
@@ -106,11 +113,24 @@ public final class JistPreprocessor {
         String code = macroExpander.expand(_session, macro, declaration, macroText.toString());
         _codeWriter.writeLine(code);
 
-        _lineNumber += lineCount;
+        return lineCount;
     }
 
-    private void processPragma(String line) {
-        // TODO: Implement this
+    private void processPragma(String pragma, String name) throws JistErrorException {
+        // TODO: Some useful validation...
+
+        if (pragma.equals("import")) {
+            _session.addImport(name);
+        }
+        else if (pragma.equals("class")) {
+            _session.specifyClassName(name);
+        }
+        else if (pragma.equals("package")) {
+            _session.specifyPackageName(name);;
+        }
+        else if (pragma.equals("require")) {
+            throw new JistErrorException("Support for require has not been implemented yet.");
+        }
     }
 
 
