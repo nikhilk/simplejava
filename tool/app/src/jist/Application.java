@@ -4,6 +4,7 @@
 
 package jist;
 
+import java.io.*;
 import jist.core.*;
 import jist.core.common.*;
 import jist.core.java.*;
@@ -11,33 +12,13 @@ import jist.core.java.*;
 public final class Application {
 
     public static void main(String[] args) throws Exception {
-        String code =
-"package aaa;\n" +
-"class bbb;\n" +
-"import java.util.*;\n" +
-"System.out.println(\"Hello World!\");\n" +
-"System.out.println(\"jist completed...\");\n" +
-"\n" +
-"%text -> foo\n" +
-"some text;\n" +
-"%text -> bar << ---\n" +
-"some more bar text\n" +
-"2nd line as well\n" +
-"---\n\n" +
-"%text -> baz <<- END\n" +
-"    blah blah blah\n" +
-"    blah blue bleeEND\n" +
-"%text -> buz << END\n" +
-"    blah blah blah\n" +
-"    blah blue bleeEND\n" +
-"System.out.println(buz);\n" +
-"System.out.println(this.getClass().getName());";
-
         Options options = Options.fromArguments(args);
         if (options.showHelp()) {
             System.out.println(options.getHelpContent());
             return;
         }
+
+        String code = readCode(options.getLocation());
 
         JistClassFactory classFactory = new JavaClassFactory();
         JistRuntime runtime = new JavaRuntime(classFactory);
@@ -49,5 +30,25 @@ public final class Application {
 
         Jist jist = new Jist(session, code, compilableCode);
         runtime.execute(jist);
+    }
+
+    private static String readCode(String location) throws IOException {
+        InputStream input = System.in;
+        if (location != null) {
+            input = new FileInputStream(location);
+        }
+
+        StringWriter writer = new StringWriter();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+        String line;
+        while ((line = reader.readLine()) != null) {
+            writer.write(line);
+            writer.write('\n');
+        }
+
+        reader.close();
+
+        return writer.toString();
     }
 }
