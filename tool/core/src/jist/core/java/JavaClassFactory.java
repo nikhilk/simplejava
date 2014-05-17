@@ -6,24 +6,32 @@ package jist.core.java;
 
 import java.util.*;
 import javax.tools.*;
-import jist.core.*;
 
-public final class JavaClassFactory implements JistClassFactory {
+final class JavaClassFactory {
 
-    @SuppressWarnings("rawtypes")
-    @Override
-    public Class compile(Jist jist, String source) throws Exception {
-        JistSession session = jist.getSession();
+    private JavaCompiler _compiler;
+    private JavaClassManager _classManager;
 
+    public JavaClassFactory() {
+        _compiler = ToolProvider.getSystemJavaCompiler();
+        _classManager = new JavaClassManager(_compiler);
+    }
+
+    public void compile(String name, String source) throws Exception {
         List<JavaFileObject> compilationUnits = new ArrayList<JavaFileObject>();
-        compilationUnits.add(new JavaFile(session.getClassName(), source));
+        compilationUnits.add(new JavaFile(name, source));
 
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        JavaClassManager classManager = new JavaClassManager(compiler);
+        _compiler.getTask(null, _classManager, null, null, null, compilationUnits)
+                 .call();
+    }
 
-        compiler.getTask(null, classManager, null, null, null, compilationUnits)
-                .call();
-
-        return classManager.getClassLoader(null).loadClass(session.getFullName());
+    @SuppressWarnings("unchecked")
+    public <T> Class<T> getClass(String fullName) {
+        try {
+            return (Class<T>)_classManager.getClassLoader(null).loadClass(fullName);
+        }
+        catch (ClassNotFoundException e) {
+            return null;
+        }
     }
 }

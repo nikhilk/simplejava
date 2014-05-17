@@ -7,7 +7,7 @@ package jist;
 import java.io.*;
 import jist.core.*;
 import jist.core.common.*;
-import jist.core.java.*;
+import jist.core.java.runtimes.*;
 
 public final class Application {
 
@@ -20,9 +20,7 @@ public final class Application {
 
         String code = readCode(options.getLocation());
 
-        JistClassFactory classFactory = new JavaClassFactory();
-        JistRuntime runtime = new JavaRuntime(classFactory);
-
+        JistRuntime runtime = new JavaSnippetRuntime();
         JistSession session = runtime.createSession();
 
         JistPreprocessor preprocessor = new JistPreprocessor(session);

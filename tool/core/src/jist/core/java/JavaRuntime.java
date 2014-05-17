@@ -8,20 +8,15 @@ import jist.core.*;
 import jist.core.java.expanders.*;
 import org.apache.commons.lang3.*;
 
-public final class JavaRuntime implements JistRuntime {
+public abstract class JavaRuntime implements JistRuntime {
 
-    private static final String JAVA_SOURCE_TEMPLATE =
-"public final class %s implements Runnable {\n" +
-"    public void run() {\n" +
-"        %s\n" +
-"    }\n" +
-"}\n";
+    private JavaClassFactory _classFactory;
 
-    private JistClassFactory _classFactory;
-
-    public JavaRuntime(JistClassFactory classFactory) {
-        _classFactory = classFactory;
+    protected JavaRuntime() {
+        _classFactory = new JavaClassFactory();
     }
+
+    protected abstract String createImplementation(Jist jist);
 
     private String createJavaSource(Jist jist) {
         JistSession session = jist.getSession();
@@ -42,26 +37,28 @@ public final class JavaRuntime implements JistRuntime {
 
         sourceBuilder.append("\n");
 
-        String classCode = String.format(JAVA_SOURCE_TEMPLATE,
-                                         session.getClassName(), jist.getCompilableCode());
+        String classCode = createImplementation(jist);
         sourceBuilder.append(classCode);
 
         return sourceBuilder.toString();
     }
 
+    protected <T> Class<T> getClass(String fullName) {
+        return _classFactory.getClass(fullName);
+    }
+
+    protected abstract void runJist(Jist jist);
     @Override
     public JistSession createSession() {
         JistSession session = new JistSession(this);
         return session.registerExpander("text", new TextExpander());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void execute(Jist jist) throws Exception {
         String source = createJavaSource(jist);
 
-        Class<Runnable> jistClass = (Class<Runnable>)_classFactory.compile(jist, source);
-        Runnable jistInstance = jistClass.newInstance();
-        jistInstance.run();
+        _classFactory.compile(jist.getSession().getClassName(), source);
+        runJist(jist);
     }
 }
