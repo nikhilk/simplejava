@@ -4,8 +4,6 @@
 
 package jist.core;
 
-import jist.core.*;
-
 public interface JistRuntime {
 
     public JistSession createSession();

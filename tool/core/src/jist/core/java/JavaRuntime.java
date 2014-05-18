@@ -6,7 +6,7 @@ package jist.core.java;
 
 import jist.core.*;
 import jist.core.java.expanders.*;
-import org.apache.commons.lang3.*;
+import jist.util.*;
 
 public abstract class JavaRuntime implements JistRuntime {
 
@@ -23,7 +23,7 @@ public abstract class JavaRuntime implements JistRuntime {
         StringBuilder sourceBuilder = new StringBuilder();
 
         String packageName = session.getPackageName();
-        if (!StringUtils.isEmpty(packageName)) {
+        if (Strings.hasValue(packageName)) {
             sourceBuilder.append("package ");
             sourceBuilder.append(packageName);
             sourceBuilder.append(";\n\n");

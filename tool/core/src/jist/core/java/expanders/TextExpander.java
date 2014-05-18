@@ -5,7 +5,7 @@
 package jist.core.java.expanders;
 
 import jist.core.*;
-import org.apache.commons.lang3.*;
+import jist.util.*;
 
 public final class TextExpander implements JistExpander {
 
@@ -13,7 +13,7 @@ public final class TextExpander implements JistExpander {
 
     @Override
     public String expand(JistSession session, String macro, String declaration, String data) {
-        String str = StringEscapeUtils.escapeJava(data);
+        String str = Strings.escape(data);
         return String.format(TEXT_CODE_TEMPLATE, declaration, str);
     }
 }

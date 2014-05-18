@@ -5,7 +5,7 @@
 package jist.core;
 
 import java.util.*;
-import org.apache.commons.lang3.*;
+import jist.util.*;
 
 public final class JistSession {
 
@@ -30,7 +30,9 @@ public final class JistSession {
 
     public String getClassName() {
         if (_className == null) {
-            _className = RandomStringUtils.randomAlphabetic(8);
+            // Class name prefixed with "_" to make sure we always have a valid
+            // identifier name, even if the random string begins with a digit.
+            _className = "_" + Strings.randomString(8);
         }
         return _className;
     }
