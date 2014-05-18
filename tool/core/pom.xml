@@ -10,6 +10,10 @@
   <artifactId>jist-core</artifactId>
   <packaging>jar</packaging>
 
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
   <build>
     <directory>${project.basedir}/bin</directory>
     <sourceDirectory>${project.basedir}/src</sourceDirectory>
