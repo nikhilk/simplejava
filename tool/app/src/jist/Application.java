@@ -20,7 +20,14 @@ public final class Application {
 
         String code = readCode(options.getLocation());
 
-        JistRuntime runtime = new JavaSnippetRuntime();
+        JistRuntime runtime;
+        if (options.getRuntime().equals("eval")) {
+            runtime = new JavaEvalRuntime();
+        }
+        else {
+            runtime = new JavaSnippetRuntime();
+        }
+
         JistSession session = runtime.createSession();
 
         JistPreprocessor preprocessor = new JistPreprocessor(session);
@@ -31,22 +38,29 @@ public final class Application {
     }
 
     private static String readCode(String location) throws IOException {
-        InputStream input = System.in;
-        if (location != null) {
-            input = new FileInputStream(location);
+        BufferedReader reader = null;
+
+        try {
+            InputStream input = System.in;
+            if (location != null) {
+                input = new FileInputStream(location);
+            }
+
+            StringWriter writer = new StringWriter();
+            reader = new BufferedReader(new InputStreamReader(input));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                writer.write(line);
+                writer.write('\n');
+            }
+
+            return writer.toString();
         }
-
-        StringWriter writer = new StringWriter();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
-        String line;
-        while ((line = reader.readLine()) != null) {
-            writer.write(line);
-            writer.write('\n');
+        finally {
+            if (reader != null) {
+                reader.close();
+            }
         }
-
-        reader.close();
-
-        return writer.toString();
     }
 }
