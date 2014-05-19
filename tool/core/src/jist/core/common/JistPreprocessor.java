@@ -5,6 +5,7 @@
 package jist.core.common;
 
 import java.io.*;
+import java.net.*;
 import java.util.regex.*;
 import jist.core.*;
 
@@ -17,7 +18,7 @@ public final class JistPreprocessor {
                         Pattern.CASE_INSENSITIVE);
 
     private final static Pattern pragmaPattern =
-        Pattern.compile("^(?<pragma>(import)|(class)|(package)|(require))\\s+(?<name>[a-zA-Z0-9_\\.\\*:]+)\\s*;$");
+        Pattern.compile("^(?<pragma>(import)|(class)|(package)|(require))\\s+(?<name>[a-zA-Z0-9_\\.\\*:/]+)\\s*;$");
 
     private JistSession _session;
 
@@ -126,10 +127,16 @@ public final class JistPreprocessor {
             _session.specifyClassName(name);
         }
         else if (pragma.equals("package")) {
-            _session.specifyPackageName(name);;
+            _session.specifyPackageName(name);
         }
         else if (pragma.equals("require")) {
-            throw new JistErrorException("Support for require has not been implemented yet.");
+            try {
+                URI moduleURI = new URI(name);
+                _session.addModule(moduleURI);
+            }
+            catch (URISyntaxException e) {
+                throw new JistErrorException("Invalid module URL syntax.", e);
+            }
         }
     }
 

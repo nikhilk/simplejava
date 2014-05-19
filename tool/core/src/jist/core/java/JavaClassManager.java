@@ -8,12 +8,10 @@ import java.io.*;
 import java.security.*;
 import javax.tools.*;
 
-@SuppressWarnings("rawtypes")
-final class JavaClassManager extends ForwardingJavaFileManager {
+final class JavaClassManager extends ForwardingJavaFileManager<StandardJavaFileManager> {
 
     private JavaClass _class;
 
-    @SuppressWarnings("unchecked")
     public JavaClassManager(JavaCompiler compiler) {
         super(compiler.getStandardFileManager(null, null, null));
     }

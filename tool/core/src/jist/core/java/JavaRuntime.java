@@ -49,8 +49,8 @@ public abstract class JavaRuntime implements JistRuntime {
 
     protected abstract void runJist(Jist jist);
     @Override
-    public JistSession createSession() {
-        JistSession session = new JistSession(this);
+    public JistSession createSession(ModuleManager modules) {
+        JistSession session = new JistSession(this, modules);
         return session.registerExpander("text", new TextExpander());
     }
 

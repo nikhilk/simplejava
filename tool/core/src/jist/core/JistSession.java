@@ -4,28 +4,34 @@
 
 package jist.core;
 
+import java.net.*;
 import java.util.*;
 import jist.util.*;
 
 public final class JistSession {
 
     private final JistRuntime _runtime;
-    private final HashSet<String> _imports;
-
+    private final ModuleManager _modules;
     private final HashMap<String, JistExpander> _expanders;
 
     private String _className;
     private String _packageName;
+    private final HashSet<String> _imports;
 
-    public JistSession(JistRuntime runtime) {
+    public JistSession(JistRuntime runtime, ModuleManager modules) {
         _runtime = runtime;
-        _imports = new HashSet<String>();
-
+        _modules = modules;
         _expanders = new HashMap<String, JistExpander>();
+
+        _imports = new HashSet<String>();
     }
 
     public void addImport(String name) {
         _imports.add(name);
+    }
+
+    public void addModule(URI moduleURI) throws JistErrorException {
+        _modules.addModule(moduleURI);
     }
 
     public String getClassName() {

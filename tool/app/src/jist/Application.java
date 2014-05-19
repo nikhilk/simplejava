@@ -8,6 +8,7 @@ import java.io.*;
 import jist.core.*;
 import jist.core.common.*;
 import jist.core.java.runtimes.*;
+import jist.core.maven.*;
 
 public final class Application {
 
@@ -18,7 +19,7 @@ public final class Application {
             return;
         }
 
-        String code = readCode(options.getLocation());
+        ModuleManager modules = new MavenModuleManager();
 
         JistRuntime runtime;
         if (options.getRuntime().equals("eval")) {
@@ -28,9 +29,10 @@ public final class Application {
             runtime = new JavaSnippetRuntime();
         }
 
-        JistSession session = runtime.createSession();
-
+        JistSession session = runtime.createSession(modules);
         JistPreprocessor preprocessor = new JistPreprocessor(session);
+
+        String code = readCode(options.getLocation());
         String compilableCode = preprocessor.preprocessCode(code);
 
         Jist jist = new Jist(session, code, compilableCode);
