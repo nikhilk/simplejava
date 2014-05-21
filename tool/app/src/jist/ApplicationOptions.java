@@ -9,7 +9,7 @@ import java.util.*;
 import jist.core.*;
 import joptsimple.*;
 
-final class Options extends JistOptions {
+final class ApplicationOptions extends JistOptions {
 
     private final static OptionParser _parser;
     private final static OptionSpec<String> _runtimeOption;
@@ -52,19 +52,19 @@ final class Options extends JistOptions {
                    .forHelp();
     }
 
-    private Options() {
+    private ApplicationOptions() {
     }
 
     @SuppressWarnings("unchecked")
-    public static Options fromArguments(String[] args) {
-        Options options = new Options();
+    public static ApplicationOptions fromArguments(String[] args) {
+        ApplicationOptions options = new ApplicationOptions();
 
         try {
             OptionSet parsedOptions = _parser.parse(args);
             options._showHelp = parsedOptions.has(_helpOption);
 
             if (!options._showHelp) {
-                options = new Options();
+                options = new ApplicationOptions();
 
                 List<String> arguments = (List<String>)parsedOptions.nonOptionArguments();
                 if (arguments.size() == 1) {

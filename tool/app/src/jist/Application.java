@@ -13,7 +13,7 @@ import jist.core.maven.*;
 public final class Application {
 
     public static void main(String[] args) throws Exception {
-        Options options = Options.fromArguments(args);
+        ApplicationOptions options = ApplicationOptions.fromArguments(args);
         if (options.showHelp()) {
             System.out.println(options.getHelpContent());
             return;
