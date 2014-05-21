@@ -6,12 +6,15 @@ package jist;
 
 import java.io.*;
 import java.util.*;
+import jist.core.*;
 import joptsimple.*;
 
-final class Options {
+final class Options extends JistOptions {
 
     private final static OptionParser _parser;
     private final static OptionSpec<String> _runtimeOption;
+    private final static OptionSpec<String> _mavenPathOption;
+    private final static OptionSpec<String> _mavenRepositoryOption;
     private final static OptionSpec<Void> _helpOption;
 
     private String _error;
@@ -23,13 +26,30 @@ final class Options {
         _parser = new OptionParser();
         _parser.nonOptions("the file or path containing the jist code").ofType(String.class);
 
-        _runtimeOption = _parser.accepts("runtime", "specifies the type of jist runtime to use to execute the jist")
-                                .withRequiredArg()
-                                .defaultsTo("snippet")
-                                .ofType(String.class)
-                                .describedAs("name");
-        _helpOption = _parser.acceptsAll(Arrays.asList("help", "?"), "shows this help information")
-                             .forHelp();
+        _runtimeOption =
+            _parser.accepts("runtime", "specifies the type of jist runtime to use to execute the jist")
+                   .withRequiredArg()
+                   .ofType(String.class)
+                   .describedAs("name")
+                   .defaultsTo("snippet");
+
+        _mavenPathOption =
+            _parser.accepts("maven", "specifies the path to maven executable")
+                   .withRequiredArg()
+                   .ofType(String.class)
+                   .describedAs("path")
+                   .defaultsTo(getDefaultMavenPath());
+
+        _mavenRepositoryOption =
+            _parser.accepts("repository", "specifies the path to the local maven repository")
+                   .withRequiredArg()
+                   .ofType(String.class)
+                   .describedAs("path")
+                   .defaultsTo(getDefaultMavenRepository());
+
+        _helpOption =
+            _parser.acceptsAll(Arrays.asList("help", "?"), "shows this help information")
+                   .forHelp();
     }
 
     private Options() {
@@ -58,6 +78,9 @@ final class Options {
                 }
 
                 options._runtime = parsedOptions.valueOf(_runtimeOption);
+
+                options.setMavenPath(parsedOptions.valueOf(_mavenPathOption));
+                options.setMavenRepository(parsedOptions.valueOf(_mavenRepositoryOption));
             }
         }
         catch (OptionException e) {
@@ -65,6 +88,32 @@ final class Options {
         }
 
         return options;
+    }
+
+    private static String getDefaultMavenPath() {
+        String[] pathList = System.getenv("PATH").split(File.pathSeparator);
+        for (String pathPart : pathList) {
+            File pathDirectory = new File(pathPart);
+            File mavenFile = new File(pathDirectory, "mvn");
+
+            if (mavenFile.exists() && mavenFile.isFile()) {
+                return mavenFile.getPath();
+            }
+        }
+
+        return null;
+    }
+
+    private static String getDefaultMavenRepository() {
+        String path = System.getProperty("user.home");
+        File homeDirectory = new File(path);
+        File repoDirectory = new File(new File(homeDirectory, ".m2"), "repository");
+
+        if (repoDirectory.exists() && repoDirectory.isDirectory()) {
+            return repoDirectory.getPath();
+        }
+
+        return null;
     }
 
     public String getHelpContent() {

@@ -15,44 +15,20 @@ public final class MavenModuleManager implements ModuleManager {
     private static final String FILE_SCHEME = "file";
     private static final String MAVEN_SCHEME = "maven";
 
-    private HashSet<URI> _modules;
+    private final String _mavenPath;
+    private final String _mavenRepositoryPath;
 
-    private String _mavenPath;
-    private String _mavenRepositoryPath;
+    private final HashSet<URI> _modules;
 
-    public MavenModuleManager() {
+    public MavenModuleManager(JistOptions options) {
+        _mavenPath = options.getMavenPath();
+        _mavenRepositoryPath = options.getMavenRepository();
+
         _modules = new HashSet<URI>();
     }
 
-    private boolean ensureMaven() {
-        if (Strings.hasValue(_mavenRepositoryPath) && Strings.hasValue(_mavenPath)) {
-            return true;
-        }
-
-        String path = System.getProperty("user.home");
-        File homeDirectory = new File(path);
-        File repoDirectory = new File(new File(homeDirectory, ".m2"), "repository");
-
-        if (repoDirectory.exists() && repoDirectory.isDirectory()) {
-            _mavenRepositoryPath = repoDirectory.getPath();
-        }
-
-        String[] pathList = System.getenv("PATH").split(File.pathSeparator);
-        for (String pathPart : pathList) {
-            File pathDirectory = new File(pathPart);
-            File mavenFile = new File(pathDirectory, "mvn");
-
-            if (mavenFile.exists() && mavenFile.isFile()) {
-                _mavenPath = mavenFile.getPath();
-            }
-        }
-
-        if (Strings.isNullOrEmpty(_mavenRepositoryPath) ||
-            Strings.isNullOrEmpty(_mavenPath)) {
-            return false;
-        }
-
-        return true;
+    private boolean supportsMavenModules() {
+        return Strings.hasValue(_mavenRepositoryPath) && Strings.hasValue(_mavenPath);
     }
 
     @Override
@@ -62,8 +38,8 @@ public final class MavenModuleManager implements ModuleManager {
             throw new JistErrorException("The module url must either be a local file or a maven artifact.");
         }
 
-        if (scheme.equals(MAVEN_SCHEME) && !ensureMaven()) {
-            throw new JistErrorException("Unable to locate maven or the local maven repository.");
+        if (scheme.equals(MAVEN_SCHEME) && !supportsMavenModules()) {
+            throw new JistErrorException("Maven could not be found.");
         }
 
         _modules.add(moduleURI);

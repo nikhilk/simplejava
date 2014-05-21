@@ -19,7 +19,7 @@ public final class Application {
             return;
         }
 
-        ModuleManager modules = new MavenModuleManager();
+        ModuleManager modules = new MavenModuleManager(options);
 
         JistRuntime runtime;
         if (options.getRuntime().equals("eval")) {
