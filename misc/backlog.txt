@@ -1,0 +1,21 @@
+Loading jists
+- Directory
+- GitHub gist api
+
+Requires and dependencies
+- maven integration
+- classpath/classloader
+- jar manifest -> statically imported type
+
+Runtimes
+- HTTP server
+
+Compilation
+- Error handling and reporting
+- Persistence of compilation result
+
+Architecture
+- Dependency injection
+- Extensibility (eg. runtime extensions)
+- Multi-class jists (within 1 file, and across files)
+
