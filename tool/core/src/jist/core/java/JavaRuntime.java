@@ -10,10 +10,11 @@ import jist.util.*;
 
 public abstract class JavaRuntime implements JistRuntime {
 
+    private final ModuleManager _moduleManager;
     private JavaClassFactory _classFactory;
 
-    protected JavaRuntime() {
-        _classFactory = new JavaClassFactory();
+    protected JavaRuntime(ModuleManager moduleManager) {
+        _moduleManager = moduleManager;
     }
 
     protected abstract String createImplementation(Jist jist);
@@ -49,8 +50,8 @@ public abstract class JavaRuntime implements JistRuntime {
 
     protected abstract void runJist(Jist jist);
     @Override
-    public JistSession createSession(ModuleManager modules) {
-        JistSession session = new JistSession(this, modules);
+    public JistSession createSession() {
+        JistSession session = new JistSession(this, _moduleManager);
         return session.registerExpander("text", new TextExpander());
     }
 
@@ -58,7 +59,9 @@ public abstract class JavaRuntime implements JistRuntime {
     public void execute(Jist jist) throws Exception {
         String source = createJavaSource(jist);
 
+        _classFactory = new JavaClassFactory(_moduleManager.getClassLoader());
         _classFactory.compile(jist.getSession().getClassName(), source);
+
         runJist(jist);
     }
 }

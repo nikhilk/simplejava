@@ -23,13 +23,13 @@ public final class Application {
 
         JistRuntime runtime;
         if (options.getRuntime().equals("eval")) {
-            runtime = new JavaEvalRuntime();
+            runtime = new JavaEvalRuntime(modules);
         }
         else {
-            runtime = new JavaSnippetRuntime();
+            runtime = new JavaSnippetRuntime(modules);
         }
 
-        JistSession session = runtime.createSession(modules);
+        JistSession session = runtime.createSession();
         JistPreprocessor preprocessor = new JistPreprocessor(session);
 
         String code = readCode(options.getLocation());

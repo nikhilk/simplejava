@@ -16,6 +16,10 @@ public final class JavaSnippetRuntime extends JavaRuntime {
 "    }\n" +
 "}\n";
 
+    public JavaSnippetRuntime(ModuleManager moduleManager) {
+        super(moduleManager);
+    }
+
     @Override
     protected String createImplementation(Jist jist) {
         return String.format(JAVA_SOURCE_TEMPLATE,

@@ -67,6 +67,10 @@ public final class JistSession {
         return names;
     }
 
+    public ModuleManager getModuleManager() {
+        return _modules;
+    }
+
     public String getPackageName() {
         return _packageName;
     }

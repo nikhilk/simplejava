@@ -10,15 +10,17 @@ import javax.tools.*;
 
 final class JavaClassManager extends ForwardingJavaFileManager<StandardJavaFileManager> {
 
+    private ClassLoader _moduleClassLoader;
     private JavaClass _class;
 
-    public JavaClassManager(JavaCompiler compiler) {
-        super(compiler.getStandardFileManager(null, null, null));
+    public JavaClassManager(StandardJavaFileManager fileManager, ClassLoader moduleClassLoader) {
+        super(fileManager);
+        _moduleClassLoader = moduleClassLoader;
     }
 
     @Override
     public ClassLoader getClassLoader(Location location) {
-        return new JistClassLoader();
+        return new JistClassLoader(_moduleClassLoader);
     }
 
     @Override
@@ -30,6 +32,10 @@ final class JavaClassManager extends ForwardingJavaFileManager<StandardJavaFileM
     }
 
     private final class JistClassLoader extends SecureClassLoader {
+
+        public JistClassLoader(ClassLoader moduleClassLoader) {
+            super(moduleClassLoader);
+        }
 
         @Override
         protected Class<?> findClass(String name) throws ClassNotFoundException {

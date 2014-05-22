@@ -12,9 +12,10 @@ final class JavaClassFactory {
     private JavaCompiler _compiler;
     private JavaClassManager _classManager;
 
-    public JavaClassFactory() {
+    public JavaClassFactory(ClassLoader moduleClassLoader) {
         _compiler = ToolProvider.getSystemJavaCompiler();
-        _classManager = new JavaClassManager(_compiler);
+        _classManager = new JavaClassManager(_compiler.getStandardFileManager(null, null, null),
+                                             moduleClassLoader);
     }
 
     public void compile(String name, String source) throws Exception {
