@@ -36,7 +36,13 @@ public final class Application {
         String compilableCode = preprocessor.preprocessCode(code);
 
         Jist jist = new Jist(session, code, compilableCode);
-        runtime.execute(jist);
+
+        try {
+            runtime.execute(jist);
+        }
+        catch (JistErrorException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private static String readCode(String location) throws IOException {

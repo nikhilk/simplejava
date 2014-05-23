@@ -18,7 +18,7 @@ final class JavaClassFactory {
         _moduleManager = moduleManager;
     }
 
-    public void compile(String name, String source) throws Exception {
+    public boolean compile(String name, String source) throws Exception {
         List<JavaFileObject> compilationUnits = new ArrayList<JavaFileObject>();
         compilationUnits.add(new JavaFile(name, source));
 
@@ -33,8 +33,8 @@ final class JavaClassFactory {
 
         _classManager = new JavaClassManager(compiler.getStandardFileManager(null, null, null),
                                              _moduleManager.getClassLoader());
-        compiler.getTask(null, _classManager, null, options, null, compilationUnits)
-                .call();
+        return compiler.getTask(null, _classManager, null, options, null, compilationUnits)
+                       .call();
     }
 
     @SuppressWarnings("unchecked")

@@ -60,8 +60,10 @@ public abstract class JavaRuntime implements JistRuntime {
         String source = createJavaSource(jist);
 
         _classFactory = new JavaClassFactory(_moduleManager);
-        _classFactory.compile(jist.getSession().getClassName(), source);
+        boolean compiled = _classFactory.compile(jist.getSession().getClassName(), source);
 
-        runJist(jist);
+        if (compiled) {
+            runJist(jist);
+        }
     }
 }

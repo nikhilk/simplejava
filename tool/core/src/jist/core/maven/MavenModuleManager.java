@@ -4,11 +4,11 @@
 
 package jist.core.maven;
 
-import java.io.File;
+import java.io.*;
 import java.net.*;
 import java.util.*;
 import jist.core.*;
-import jist.util.Strings;
+import jist.util.*;
 
 public final class MavenModuleManager implements ModuleManager {
 
@@ -18,32 +18,26 @@ public final class MavenModuleManager implements ModuleManager {
     private final String _mavenPath;
     private final String _mavenRepositoryPath;
 
-    private final HashSet<URI> _modules;
-    private final List<Artifact> _artifacts;
-
-    private List<String> _resolvedModules;
+    private final HashSet<URI> _moduleURIs;
+    private final List<Module> _modules;
 
     public MavenModuleManager(JistOptions options) {
         _mavenPath = options.getMavenPath();
         _mavenRepositoryPath = options.getMavenRepository();
 
-        _modules = new HashSet<URI>();
-        _artifacts = new ArrayList<Artifact>();
+        _moduleURIs = new HashSet<URI>();
+        _modules = new ArrayList<Module>();
     }
 
-    private List<String> resolveModules() {
-        if (_resolvedModules == null) {
-            ArrayList<String> jars = new ArrayList<String>();
+    private List<String> resolveModules() throws JistErrorException {
+        ArrayList<String> jars = new ArrayList<String>();
 
-            for (Artifact artifact : _artifacts) {
-                String path = artifact.resolve(_mavenRepositoryPath);
-                jars.add(path);
-            }
-
-            _resolvedModules = jars;
+        for (Module module : _modules) {
+            String jar = module.resolve();
+            jars.add(jar);
         }
 
-        return _resolvedModules;
+        return jars;
     }
 
     private boolean supportsMavenModules() {
@@ -67,18 +61,13 @@ public final class MavenModuleManager implements ModuleManager {
             mavenURI = true;
         }
 
-        if (_modules.add(moduleURI)) {
-            if (mavenURI) {
-                _artifacts.add(Artifact.fromMavenURI(moduleURI));
-            }
-            else {
-                _artifacts.add(Artifact.fromFileURI(moduleURI));
-            }
+        if (_moduleURIs.add(moduleURI)) {
+            _modules.add(new Module(moduleURI, mavenURI));
         }
     }
 
     @Override
-    public ClassLoader getClassLoader() {
+    public ClassLoader getClassLoader() throws JistErrorException {
         List<String> jars = resolveModules();
 
         URL[] urls = new URL[jars.size()];
@@ -94,7 +83,7 @@ public final class MavenModuleManager implements ModuleManager {
     }
 
     @Override
-    public String getClassPath() {
+    public String getClassPath() throws JistErrorException {
         List<String> jars = resolveModules();
 
         StringBuilder sb = new StringBuilder();
@@ -109,5 +98,68 @@ public final class MavenModuleManager implements ModuleManager {
         }
 
         return sb.toString();
+    }
+
+
+    private final class Module {
+
+        public String _jar;
+        public String _artifact;
+        public boolean _requiresResolution;
+
+        public Module(URI uri, boolean maven) {
+            _jar = uri.getPath();
+
+            if (maven) {
+                String[] pathParts = uri.getPath().split("/");
+                String groupId = pathParts[1];
+                String artifactId = pathParts[2];
+                String version = pathParts[3];
+
+                String path = groupId.replace('.', File.separatorChar) + File.separator +
+                              artifactId + File.separator + version + File.separator +
+                              artifactId + "-" + version + ".jar";
+
+                File file = new File(_mavenRepositoryPath, path);
+                _jar = file.getPath();
+
+                _artifact = groupId + ":" + artifactId + ":" + version;
+                _requiresResolution = !file.exists();
+            }
+        }
+
+        public String resolve() throws JistErrorException {
+            if (_requiresResolution) {
+                String[] commandParts = new String[] {
+                    _mavenPath,
+                    "org.apache.maven.plugins:maven-dependency-plugin:2.8:get",
+                    "-DremoteRepositories=central::default::http://repo1.maven.apache.org/maven2",
+                    "-Dtransitive=false",
+                    "-Dartifact=" + _artifact
+                };
+
+                Runtime runtime = Runtime.getRuntime();
+                try {
+                    Process process = runtime.exec(commandParts);
+                    process.waitFor();
+                }
+                catch (Exception e) {
+                    throw new JistErrorException("Could not execute maven to resolve " + _artifact, e);
+                }
+
+                File file = new File(_jar);
+                if (!file.exists()) {
+                    throw new JistErrorException("Could not resolve the artifact " + _artifact + " to a local jar.");
+                }
+            }
+            else {
+                File file = new File(_jar);
+                if (!file.exists()) {
+                    throw new JistErrorException("The referenced jar " + _jar + " could not be found.");
+                }
+            }
+
+            return _jar;
+        }
     }
 }
