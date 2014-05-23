@@ -59,7 +59,7 @@ public abstract class JavaRuntime implements JistRuntime {
     public void execute(Jist jist) throws Exception {
         String source = createJavaSource(jist);
 
-        _classFactory = new JavaClassFactory(_moduleManager.getClassLoader());
+        _classFactory = new JavaClassFactory(_moduleManager);
         _classFactory.compile(jist.getSession().getClassName(), source);
 
         runJist(jist);

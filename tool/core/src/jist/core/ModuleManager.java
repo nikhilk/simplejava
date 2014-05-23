@@ -11,4 +11,6 @@ public interface ModuleManager {
     public void addModule(URI moduleURI) throws JistErrorException;
 
     public ClassLoader getClassLoader();
+
+    public String getClassPath();
 }

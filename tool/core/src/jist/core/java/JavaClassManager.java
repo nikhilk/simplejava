@@ -31,6 +31,7 @@ final class JavaClassManager extends ForwardingJavaFileManager<StandardJavaFileM
         return _class;
     }
 
+
     private final class JistClassLoader extends SecureClassLoader {
 
         public JistClassLoader(ClassLoader moduleClassLoader) {

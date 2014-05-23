@@ -4,6 +4,7 @@
 
 package jist.core.maven;
 
+import java.io.File;
 import java.net.*;
 import java.util.*;
 import jist.core.*;
@@ -20,6 +21,8 @@ public final class MavenModuleManager implements ModuleManager {
     private final HashSet<URI> _modules;
     private final List<Artifact> _artifacts;
 
+    private List<String> _resolvedModules;
+
     public MavenModuleManager(JistOptions options) {
         _mavenPath = options.getMavenPath();
         _mavenRepositoryPath = options.getMavenRepository();
@@ -28,23 +31,19 @@ public final class MavenModuleManager implements ModuleManager {
         _artifacts = new ArrayList<Artifact>();
     }
 
-    private URL[] resolveModules() {
-        ArrayList<URL> jars = new ArrayList<URL>();
+    private List<String> resolveModules() {
+        if (_resolvedModules == null) {
+            ArrayList<String> jars = new ArrayList<String>();
 
-        for (Artifact artifact : _artifacts) {
-            String path = artifact.resolve(_mavenRepositoryPath);
-            try {
-                URL jar = new URL("jar", "", "file://" + path + "!/");
-                jars.add(jar);
+            for (Artifact artifact : _artifacts) {
+                String path = artifact.resolve(_mavenRepositoryPath);
+                jars.add(path);
             }
-            catch (MalformedURLException e) {
-            }
+
+            _resolvedModules = jars;
         }
 
-        URL[] urls = new URL[jars.size()];
-        jars.toArray(urls);
-
-        return urls;
+        return _resolvedModules;
     }
 
     private boolean supportsMavenModules() {
@@ -80,8 +79,35 @@ public final class MavenModuleManager implements ModuleManager {
 
     @Override
     public ClassLoader getClassLoader() {
-        URL[] moduleJars = resolveModules();
+        List<String> jars = resolveModules();
 
-        return new URLClassLoader(moduleJars);
+        URL[] urls = new URL[jars.size()];
+        for (int i = 0; i < urls.length; i++) {
+            try {
+                urls[i] = new URL("jar", "", "file://" + jars.get(i) + "!/");
+            }
+            catch (MalformedURLException e) {
+            }
+        }
+
+        return new URLClassLoader(urls);
+    }
+
+    @Override
+    public String getClassPath() {
+        List<String> jars = resolveModules();
+
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (String jar : jars) {
+            if (!first) {
+                sb.append(File.pathSeparatorChar);
+            }
+
+            sb.append(jar);
+            first = false;
+        }
+
+        return sb.toString();
     }
 }
