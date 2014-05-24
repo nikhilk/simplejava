@@ -20,6 +20,7 @@ public final class JistSession {
     private ClassLoader _classLoader;
 
     private final HashSet<String> _imports;
+    private final HashSet<String> _staticImports;
 
     public JistSession(JistRuntime runtime, ModuleManager modules) {
         _runtime = runtime;
@@ -27,14 +28,21 @@ public final class JistSession {
         _expanders = new HashMap<String, JistExpander>();
 
         _imports = new HashSet<String>();
+        _staticImports = new HashSet<String>();
     }
 
-    public void addImport(String name) {
+    public JistSession addImport(String name) {
         _imports.add(name);
+        return this;
     }
 
     public void addModule(URI moduleURI) throws JistErrorException {
         _modules.addModule(moduleURI);
+    }
+
+    public JistSession addStaticImport(String name) {
+        _staticImports.add(name);
+        return this;
     }
 
     public ClassLoader getClassLoader() {
@@ -92,6 +100,15 @@ public final class JistSession {
 
     public JistRuntime getRuntime() {
         return _runtime;
+    }
+
+    public String[] getStaticImports() {
+        String[] names = new String[_staticImports.size()];
+
+        _staticImports.toArray(names);
+        Arrays.sort(names);
+
+        return names;
     }
 
     public JistSession registerExpander(String name, JistExpander expander) {

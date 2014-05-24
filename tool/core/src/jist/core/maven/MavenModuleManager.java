@@ -7,6 +7,7 @@ package jist.core.maven;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.jar.*;
 import jist.core.*;
 import jist.util.*;
 
@@ -14,6 +15,8 @@ public final class MavenModuleManager implements ModuleManager {
 
     private static final String FILE_SCHEME = "file";
     private static final String MAVEN_SCHEME = "maven";
+
+    private static final String JIST_MODULE_IMPORT_ATTRIBUTE = "Jist-Module-Import";
 
     private final String _mavenPath;
     private final String _mavenRepositoryPath;
@@ -27,6 +30,35 @@ public final class MavenModuleManager implements ModuleManager {
 
         _moduleURIs = new HashSet<URI>();
         _modules = new ArrayList<Module>();
+    }
+
+    private String getModuleImport(String moduleJar) {
+        JarFile jar = null;
+
+        try {
+            jar = new JarFile(moduleJar);
+
+            Manifest manifest = jar.getManifest();
+            if (manifest != null) {
+                Attributes attributes = manifest.getMainAttributes();
+                if (attributes != null) {
+                    return attributes.getValue(JIST_MODULE_IMPORT_ATTRIBUTE);
+                }
+            }
+        }
+        catch (IOException e) {
+        }
+        finally {
+            if (jar != null) {
+                try {
+                    jar.close();
+                }
+                catch (IOException e) {
+                }
+            }
+        }
+
+        return null;
     }
 
     private List<String> resolveModules() throws JistErrorException {
@@ -75,21 +107,31 @@ public final class MavenModuleManager implements ModuleManager {
             URL[] urls = new URL[jars.size()];
 
             for (int i = 0; i < urls.length; i++) {
-                try {
-                    String jar = jars.get(i);
+                String jar = jars.get(i);
 
+                try {
                     if (i != 0) {
                         sb.append(File.pathSeparatorChar);
                     }
                     sb.append(jar);
 
-                    urls[i] = new URL("jar", "", "file://" + jar + "!/");
+                    URL url = new URL("jar", "", "file://" + jar + "!/");
+                    urls[i] = url;
+
+                    String moduleImport = getModuleImport(jar);
+                    if (Strings.hasValue(moduleImport)) {
+                        session.addStaticImport(moduleImport);
+                    }
                 }
-                catch (MalformedURLException e) {
+                catch (Exception e) {
+                    throw new JistErrorException("Unable to load a required jar " + jar);
                 }
             }
 
-            session.useDependencies(sb.toString(), new URLClassLoader(urls));
+            String classPath = sb.toString();
+            URLClassLoader classLoader = new URLClassLoader(urls);
+
+            session.useDependencies(classPath, classLoader);
         }
     }
 

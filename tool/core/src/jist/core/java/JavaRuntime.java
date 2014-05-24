@@ -35,6 +35,12 @@ public abstract class JavaRuntime implements JistRuntime {
             sourceBuilder.append(";\n");
         }
 
+        for (String importedReference : session.getStaticImports()) {
+            sourceBuilder.append("import static ");
+            sourceBuilder.append(importedReference);
+            sourceBuilder.append(";\n");
+        }
+
         sourceBuilder.append("\n");
 
         String classCode = createImplementation(jist);
