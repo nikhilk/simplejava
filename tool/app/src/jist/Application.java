@@ -7,7 +7,7 @@ package jist;
 import java.io.*;
 import jist.core.*;
 import jist.core.common.*;
-import jist.core.java.runtimes.*;
+import jist.core.java.*;
 import jist.core.maven.*;
 
 public final class Application {
@@ -19,17 +19,10 @@ public final class Application {
             return;
         }
 
-        ModuleManager modules = new MavenModuleManager(options);
+        ModuleManager moduleManager = new MavenModuleManager(options);
+        JistRuntime runtime = JavaRuntime.createRuntime(options.getRuntime());
 
-        JistRuntime runtime;
-        if (options.getRuntime().equals("eval")) {
-            runtime = new JavaEvalRuntime(modules);
-        }
-        else {
-            runtime = new JavaSnippetRuntime(modules);
-        }
-
-        JistSession session = runtime.createSession();
+        JistSession session = runtime.createSession(moduleManager);
         JistPreprocessor preprocessor = new JistPreprocessor(session);
 
         String code = readCode(options.getLocation());
@@ -38,6 +31,7 @@ public final class Application {
         Jist jist = new Jist(session, code, compilableCode);
 
         try {
+            moduleManager.resolveModules(session);
             runtime.execute(jist);
         }
         catch (JistErrorException e) {

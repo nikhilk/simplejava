@@ -67,39 +67,31 @@ public final class MavenModuleManager implements ModuleManager {
     }
 
     @Override
-    public ClassLoader getClassLoader() throws JistErrorException {
+    public void resolveModules(JistSession session) throws JistErrorException {
         List<String> jars = resolveModules();
 
-        URL[] urls = new URL[jars.size()];
-        for (int i = 0; i < urls.length; i++) {
-            try {
-                urls[i] = new URL("jar", "", "file://" + jars.get(i) + "!/");
+        if (jars.size() != 0) {
+            StringBuilder sb = new StringBuilder();
+            URL[] urls = new URL[jars.size()];
+
+            for (int i = 0; i < urls.length; i++) {
+                try {
+                    String jar = jars.get(i);
+
+                    if (i != 0) {
+                        sb.append(File.pathSeparatorChar);
+                    }
+                    sb.append(jar);
+
+                    urls[i] = new URL("jar", "", "file://" + jar + "!/");
+                }
+                catch (MalformedURLException e) {
+                }
             }
-            catch (MalformedURLException e) {
-            }
+
+            session.useDependencies(sb.toString(), new URLClassLoader(urls));
         }
-
-        return new URLClassLoader(urls);
     }
-
-    @Override
-    public String getClassPath() throws JistErrorException {
-        List<String> jars = resolveModules();
-
-        StringBuilder sb = new StringBuilder();
-        boolean first = true;
-        for (String jar : jars) {
-            if (!first) {
-                sb.append(File.pathSeparatorChar);
-            }
-
-            sb.append(jar);
-            first = false;
-        }
-
-        return sb.toString();
-    }
-
 
     private final class Module {
 

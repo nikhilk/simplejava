@@ -6,15 +6,14 @@ package jist.core.java;
 
 import jist.core.*;
 import jist.core.java.expanders.*;
+import jist.core.java.runtimes.*;
 import jist.util.*;
 
 public abstract class JavaRuntime implements JistRuntime {
 
-    private final ModuleManager _moduleManager;
     private JavaClassFactory _classFactory;
 
-    protected JavaRuntime(ModuleManager moduleManager) {
-        _moduleManager = moduleManager;
+    protected JavaRuntime() {
     }
 
     protected abstract String createImplementation(Jist jist);
@@ -44,23 +43,29 @@ public abstract class JavaRuntime implements JistRuntime {
         return sourceBuilder.toString();
     }
 
+    public static JistRuntime createRuntime(String name) {
+        return (name.equals("eval")) ? new JavaEvalRuntime() : new JavaSnippetRuntime();
+    }
+
     protected <T> Class<T> getClass(String fullName) {
         return _classFactory.getClass(fullName);
     }
 
     protected abstract void runJist(Jist jist);
+
     @Override
-    public JistSession createSession() {
-        JistSession session = new JistSession(this, _moduleManager);
+    public JistSession createSession(ModuleManager moduleManager) {
+        JistSession session = new JistSession(this, moduleManager);
         return session.registerExpander("text", new TextExpander());
     }
 
     @Override
     public void execute(Jist jist) throws Exception {
+        JistSession session = jist.getSession();
         String source = createJavaSource(jist);
 
-        _classFactory = new JavaClassFactory(_moduleManager);
-        boolean compiled = _classFactory.compile(jist.getSession().getClassName(), source);
+        _classFactory = new JavaClassFactory(session);
+        boolean compiled = _classFactory.compile(session.getClassName(), source);
 
         if (compiled) {
             runJist(jist);

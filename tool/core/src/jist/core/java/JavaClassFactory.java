@@ -11,11 +11,11 @@ import jist.util.*;
 
 final class JavaClassFactory {
 
-    private final ModuleManager _moduleManager;
+    private final JistSession _session;
     private JavaClassManager _classManager;
 
-    public JavaClassFactory(ModuleManager moduleManager) {
-        _moduleManager = moduleManager;
+    public JavaClassFactory(JistSession session) {
+        _session = session;
     }
 
     public boolean compile(String name, String source) throws Exception {
@@ -25,14 +25,14 @@ final class JavaClassFactory {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         List<String> options = new ArrayList<String>();
 
-        String classPath = _moduleManager.getClassPath();
+        String classPath = _session.getClassPath();
         if (Strings.hasValue(classPath)) {
             options.add("-classpath");
             options.add(classPath);
         }
 
         _classManager = new JavaClassManager(compiler.getStandardFileManager(null, null, null),
-                                             _moduleManager.getClassLoader());
+                                             _session.getClassLoader());
         return compiler.getTask(null, _classManager, null, options, null, compilationUnits)
                        .call();
     }

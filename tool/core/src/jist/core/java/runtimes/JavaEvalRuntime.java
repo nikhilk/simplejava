@@ -21,10 +21,6 @@ public final class JavaEvalRuntime extends JavaRuntime {
 "    }\n" +
 "}\n";
 
-    public JavaEvalRuntime(ModuleManager moduleManager) {
-        super(moduleManager);
-    }
-
     @Override
     protected String createImplementation(Jist jist) {
         return String.format(JAVA_SOURCE_TEMPLATE,

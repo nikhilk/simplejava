@@ -16,6 +16,9 @@ public final class JistSession {
 
     private String _className;
     private String _packageName;
+    private String _classPath;
+    private ClassLoader _classLoader;
+
     private final HashSet<String> _imports;
 
     public JistSession(JistRuntime runtime, ModuleManager modules) {
@@ -34,6 +37,14 @@ public final class JistSession {
         _modules.addModule(moduleURI);
     }
 
+    public ClassLoader getClassLoader() {
+        if (_classLoader == null) {
+            return Jist.class.getClassLoader();
+        }
+
+        return _classLoader;
+    }
+
     public String getClassName() {
         if (_className == null) {
             // Class name prefixed with "_" to make sure we always have a valid
@@ -41,6 +52,10 @@ public final class JistSession {
             _className = "_" + Strings.randomString(8);
         }
         return _className;
+    }
+
+    public String getClassPath() {
+        return _classPath;
     }
 
     public JistExpander getExpander(String name) {
@@ -99,6 +114,13 @@ public final class JistSession {
         }
 
         _packageName = name;
+        return this;
+    }
+
+    public JistSession useDependencies(String classPath, ClassLoader classLoader) {
+        _classPath = classPath;
+        _classLoader = classLoader;
+
         return this;
     }
 }
