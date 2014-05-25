@@ -4,6 +4,7 @@
 
 package jist.core.java;
 
+import java.io.*;
 import jist.core.*;
 import jist.core.java.expanders.*;
 import jist.core.java.runtimes.*;
@@ -14,10 +15,9 @@ public abstract class JavaRuntime implements JistRuntime {
     protected JavaRuntime() {
     }
 
-    protected abstract String createImplementation(Jist jist);
+    protected abstract String createImplementation(Jist jist) throws IOException;
 
-    private String createJavaSource(Jist jist) {
-        JistSession session = jist.getSession();
+    private String createJavaSource(JistSession session, String implementation) throws IOException {
         StringBuilder sourceBuilder = new StringBuilder();
 
         String packageName = session.getPackageName();
@@ -41,9 +41,7 @@ public abstract class JavaRuntime implements JistRuntime {
 
         sourceBuilder.append("\n");
 
-        String classCode = createImplementation(jist);
-        sourceBuilder.append(classCode);
-
+        sourceBuilder.append(implementation);
         return sourceBuilder.toString();
     }
 
@@ -70,15 +68,19 @@ public abstract class JavaRuntime implements JistRuntime {
 
     @Override
     public void execute(Jist jist) throws Exception {
+        // First create the class implementation. This will cause pragmas
+        // to get processed, and collect session info.
+        String implementation = createImplementation(jist);
+
+        // Now resolve dependencies, during which course, additional information
+        // may be added to the session
         JavaSession session = (JavaSession)jist.getSession();
+        session.getDependencies().resolveModules(session);
 
-        JistDependencies dependencies = session.getDependencies();
-        dependencies.resolveModules(session);
+        // Finally generate the compilation source, with all the collectioned information
+        String source = createJavaSource(session, implementation);
 
-        String source = createJavaSource(jist);
-
-        JavaClassFactory classFactory = session.getClassFactory();
-        boolean compiled = classFactory.compile(session.getClassName(), source);
+        boolean compiled = session.getClassFactory().compile(session.getClassName(), source);
         if (compiled) {
             runJist(jist);
         }

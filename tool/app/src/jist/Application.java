@@ -5,7 +5,6 @@
 package jist;
 
 import jist.core.*;
-import jist.core.common.*;
 import jist.core.java.*;
 import jist.core.sources.*;
 
@@ -18,18 +17,13 @@ public final class Application {
             return;
         }
 
-        JistRuntime runtime = JavaRuntime.createRuntime(options.getRuntime());
-        JistSession session = runtime.createSession(options);
-
-        JistSource source = StreamSource.createSource(options.getLocation());
-        String code = source.getMainSource();
-
-        JistPreprocessor preprocessor = new JistPreprocessor(session);
-        String compilableCode = preprocessor.preprocessCode(code);
-
-        Jist jist = new Jist(session, code, compilableCode);
-
         try {
+            JistRuntime runtime = JavaRuntime.createRuntime(options.getRuntime());
+
+            JistSession session = runtime.createSession(options);
+            JistSource source = StreamSource.createSource(session, options.getLocation());
+
+            Jist jist = new Jist(session, source);
             runtime.execute(jist);
         }
         catch (JistErrorException e) {

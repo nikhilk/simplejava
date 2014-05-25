@@ -7,24 +7,18 @@ package jist.core;
 public final class Jist {
 
     private final JistSession _session;
-    private final String _code;
-    private final String _compilableCode;
+    private final JistSource _source;
 
-    public Jist(JistSession session, String code, String compilableCode) {
+    public Jist(JistSession session, JistSource source) {
         _session = session;
-        _code = code;
-        _compilableCode = compilableCode;
-    }
-
-    public String getCode() {
-        return _code;
-    }
-
-    public String getCompilableCode() {
-        return _compilableCode;
+        _source = source;
     }
 
     public JistSession getSession() {
         return _session;
+    }
+
+    public JistSource getSource() {
+        return _source;
     }
 }

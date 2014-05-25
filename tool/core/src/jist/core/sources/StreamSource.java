@@ -6,18 +6,21 @@ package jist.core.sources;
 
 import java.io.*;
 import jist.core.*;
+import jist.core.common.*;
 
 public final class StreamSource implements JistSource {
 
-    private String _baseLocation;
-    private String _source;
+    private final JistSession _session;
+    private final String _baseLocation;
+    private final String _source;
 
-    private StreamSource(String baseLocation, String source) {
+    private StreamSource(JistSession session, String baseLocation, String source) {
+        _session = session;
         _baseLocation = baseLocation;
         _source = source;
     }
 
-    public static StreamSource createSource(String path) throws IOException {
+    public static StreamSource createSource(JistSession session, String path) throws IOException {
         String baseLocation;
         if (path == null) {
             baseLocation = System.getProperty("user.dir");
@@ -29,7 +32,7 @@ public final class StreamSource implements JistSource {
 
         String source = readSource(path);
 
-        return new StreamSource(baseLocation, source);
+        return new StreamSource(session, baseLocation, source);
     }
 
     private static String readSource(String path) throws IOException {
@@ -65,7 +68,8 @@ public final class StreamSource implements JistSource {
     }
 
     @Override
-    public String getMainSource() {
-        return _source;
+    public String getMainSource() throws IOException {
+        JistPreprocessor preprocessor = new JistPreprocessor(_session);
+        return preprocessor.preprocessCode(_source);
     }
 }
