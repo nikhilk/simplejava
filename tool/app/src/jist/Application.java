@@ -4,11 +4,11 @@
 
 package jist;
 
-import java.io.*;
 import jist.core.*;
 import jist.core.common.*;
 import jist.core.java.*;
 import jist.core.maven.*;
+import jist.core.sources.*;
 
 public final class Application {
 
@@ -19,13 +19,14 @@ public final class Application {
             return;
         }
 
-        ModuleManager moduleManager = new MavenModuleManager(options);
+        JistSource source = StreamSource.createSource(options.getLocation());
         JistRuntime runtime = JavaRuntime.createRuntime(options.getRuntime());
+        ModuleManager moduleManager = new MavenModuleManager(options);
 
         JistSession session = runtime.createSession(moduleManager);
         JistPreprocessor preprocessor = new JistPreprocessor(session);
 
-        String code = readCode(options.getLocation());
+        String code = source.getMainSource();
         String compilableCode = preprocessor.preprocessCode(code);
 
         Jist jist = new Jist(session, code, compilableCode);
@@ -36,33 +37,6 @@ public final class Application {
         }
         catch (JistErrorException e) {
             System.out.println(e.getMessage());
-        }
-    }
-
-    private static String readCode(String location) throws IOException {
-        BufferedReader reader = null;
-
-        try {
-            InputStream input = System.in;
-            if (location != null) {
-                input = new FileInputStream(location);
-            }
-
-            StringWriter writer = new StringWriter();
-            reader = new BufferedReader(new InputStreamReader(input));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                writer.write(line);
-                writer.write('\n');
-            }
-
-            return writer.toString();
-        }
-        finally {
-            if (reader != null) {
-                reader.close();
-            }
         }
     }
 }
