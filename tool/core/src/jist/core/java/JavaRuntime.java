@@ -11,8 +11,6 @@ import jist.util.*;
 
 public abstract class JavaRuntime implements JistRuntime {
 
-    private JavaClassFactory _classFactory;
-
     protected JavaRuntime() {
     }
 
@@ -53,26 +51,34 @@ public abstract class JavaRuntime implements JistRuntime {
         return (name.equals("eval")) ? new JavaEvalRuntime() : new JavaSnippetRuntime();
     }
 
-    protected <T> Class<T> getClass(String fullName) {
-        return _classFactory.getClass(fullName);
+    protected <T> Class<T> getClass(JistSession session, String fullName) {
+        JavaClassFactory classFactory = ((JavaSession)session).getClassFactory();
+        return classFactory.getClass(fullName);
     }
 
     protected abstract void runJist(Jist jist);
 
     @Override
-    public JistSession createSession(ModuleManager moduleManager) {
-        JistSession session = new JistSession(this, moduleManager);
-        return session.registerExpander("text", new TextExpander());
+    public JistSession createSession(JistOptions options) {
+        JistDependencies dependencies = new JarDependencies(options);
+
+        JistSession session = new JavaSession(this, dependencies);
+        session.registerExpander("text", new TextExpander());
+
+        return session;
     }
 
     @Override
     public void execute(Jist jist) throws Exception {
-        JistSession session = jist.getSession();
+        JavaSession session = (JavaSession)jist.getSession();
+
+        JistDependencies dependencies = session.getDependencies();
+        dependencies.resolveModules(session);
+
         String source = createJavaSource(jist);
 
-        _classFactory = new JavaClassFactory(session);
-        boolean compiled = _classFactory.compile(session.getClassName(), source);
-
+        JavaClassFactory classFactory = session.getClassFactory();
+        boolean compiled = classFactory.compile(session.getClassName(), source);
         if (compiled) {
             runJist(jist);
         }

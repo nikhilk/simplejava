@@ -6,7 +6,7 @@ package jist.core;
 
 import java.net.*;
 
-public interface ModuleManager {
+public interface JistDependencies {
 
     public void addModule(URI moduleURI) throws JistErrorException;
 

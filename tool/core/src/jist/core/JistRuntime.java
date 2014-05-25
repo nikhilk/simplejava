@@ -6,7 +6,7 @@ package jist.core;
 
 public interface JistRuntime {
 
-    public JistSession createSession(ModuleManager moduleManager);
+    public JistSession createSession(JistOptions options);
 
     public void execute(Jist jist) throws Exception;
 }

@@ -29,7 +29,7 @@ public final class JavaEvalRuntime extends JavaRuntime {
 
     @Override
     protected void runJist(Jist jist) {
-        Class<Runnable> jistClass = getClass(jist.getSession().getFullName());
+        Class<Runnable> jistClass = getClass(jist.getSession(), jist.getSession().getFullName());
 
         Runnable jistInstance;
         try {

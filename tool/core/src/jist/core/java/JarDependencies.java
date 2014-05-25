@@ -2,7 +2,7 @@
 // jist/core
 //
 
-package jist.core.maven;
+package jist.core.java;
 
 import java.io.*;
 import java.net.*;
@@ -11,7 +11,7 @@ import java.util.jar.*;
 import jist.core.*;
 import jist.util.*;
 
-public final class MavenModuleManager implements ModuleManager {
+public final class JarDependencies implements JistDependencies {
 
     private static final String FILE_SCHEME = "file";
     private static final String MAVEN_SCHEME = "maven";
@@ -24,7 +24,7 @@ public final class MavenModuleManager implements ModuleManager {
     private final HashSet<URI> _moduleURIs;
     private final List<Module> _modules;
 
-    public MavenModuleManager(JistOptions options) {
+    public JarDependencies(JistOptions options) {
         _mavenPath = options.getMavenPath();
         _mavenRepositoryPath = options.getMavenRepository();
 

@@ -8,10 +8,10 @@ import java.net.*;
 import java.util.*;
 import jist.util.*;
 
-public final class JistSession {
+public abstract class JistSession {
 
     private final JistRuntime _runtime;
-    private final ModuleManager _modules;
+    private final JistDependencies _dependencies;
     private final HashMap<String, JistExpander> _expanders;
 
     private String _className;
@@ -22,9 +22,9 @@ public final class JistSession {
     private final HashSet<String> _imports;
     private final HashSet<String> _staticImports;
 
-    public JistSession(JistRuntime runtime, ModuleManager modules) {
+    protected JistSession(JistRuntime runtime, JistDependencies dependencies) {
         _runtime = runtime;
-        _modules = modules;
+        _dependencies = dependencies;
         _expanders = new HashMap<String, JistExpander>();
 
         _imports = new HashSet<String>();
@@ -37,7 +37,7 @@ public final class JistSession {
     }
 
     public void addModule(URI moduleURI) throws JistErrorException {
-        _modules.addModule(moduleURI);
+        _dependencies.addModule(moduleURI);
     }
 
     public JistSession addStaticImport(String name) {
@@ -66,6 +66,10 @@ public final class JistSession {
         return _classPath;
     }
 
+    public JistDependencies getDependencies() {
+        return _dependencies;
+    }
+
     public JistExpander getExpander(String name) {
         return _expanders.get(name);
     }
@@ -88,10 +92,6 @@ public final class JistSession {
         Arrays.sort(names);
 
         return names;
-    }
-
-    public ModuleManager getModuleManager() {
-        return _modules;
     }
 
     public String getPackageName() {
