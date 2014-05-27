@@ -8,7 +8,5 @@ import java.io.*;
 
 public interface JistSource {
 
-    public String getBaseLocation();
-
     public String getMainSource() throws IOException;
 }

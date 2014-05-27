@@ -11,28 +11,16 @@ import jist.core.common.*;
 public final class StreamSource implements JistSource {
 
     private final JistSession _session;
-    private final String _baseLocation;
     private final String _source;
 
-    private StreamSource(JistSession session, String baseLocation, String source) {
+    private StreamSource(JistSession session, String source) {
         _session = session;
-        _baseLocation = baseLocation;
         _source = source;
     }
 
     public static StreamSource createSource(JistSession session, String path) throws IOException {
-        String baseLocation;
-        if (path == null) {
-            baseLocation = System.getProperty("user.dir");
-        }
-        else {
-            File file = new File(path);
-            baseLocation = file.getParent();
-        }
-
         String source = readSource(path);
-
-        return new StreamSource(session, baseLocation, source);
+        return new StreamSource(session, source);
     }
 
     private static String readSource(String path) throws IOException {
@@ -60,11 +48,6 @@ public final class StreamSource implements JistSource {
                 reader.close();
             }
         }
-    }
-
-    @Override
-    public String getBaseLocation() {
-        return _baseLocation;
     }
 
     @Override
