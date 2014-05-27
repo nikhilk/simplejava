@@ -68,14 +68,16 @@ public abstract class JavaRuntime implements JistRuntime {
 
     @Override
     public void execute(Jist jist) throws Exception {
+        JavaSession session = (JavaSession)jist.getSession();
+        JarDependencies dependencies = (JarDependencies)session.getDependencies();
+
         // First create the class implementation. This will cause pragmas
         // to get processed, and collect session info.
         String implementation = createImplementation(jist);
 
         // Now resolve dependencies, during which course, additional information
         // may be added to the session
-        JavaSession session = (JavaSession)jist.getSession();
-        session.getDependencies().resolveModules(session);
+        dependencies.resolveModules(session);
 
         // Finally generate the compilation source, with all the collectioned information
         String source = createJavaSource(session, implementation);
