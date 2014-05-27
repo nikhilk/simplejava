@@ -21,7 +21,7 @@ public final class Application {
             JistRuntime runtime = JavaRuntime.createRuntime(options.getRuntime());
 
             JistSession session = runtime.createSession(options);
-            JistSource source = StreamSource.createSource(session, options.getLocation());
+            JistSource source = new StreamSource(session, options.getLocation());
 
             Jist jist = new Jist(session, source);
             runtime.execute(jist);

@@ -79,7 +79,7 @@ public abstract class JavaRuntime implements JistRuntime {
         // may be added to the session
         dependencies.resolveModules(session);
 
-        // Finally generate the compilation source, with all the collectioned information
+        // Finally generate the compilation source, with all the collected information
         String source = createJavaSource(session, implementation);
 
         boolean compiled = session.getClassFactory().compile(session.getClassName(), source);
