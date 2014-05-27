@@ -1,0 +1,20 @@
+require maven:///org.yaml/snakeyaml/1.13/;
+import org.yaml.snakeyaml.*;
+
+// require file:///Users/nikhilk/Documents/Projects/GitHub/jist/samples.jar;
+require samples.jar;
+import samples.Foo;
+
+Yaml y = new Yaml();
+Foo f = new Foo();
+
+%text -> foo << ---
+abcd "foo"
+foo bar
+---
+
+System.out.println(foo);
+System.out.println(y.toString());
+System.out.println(f.valueOf());
+System.out.println(valueOf());
+

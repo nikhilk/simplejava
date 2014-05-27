@@ -10,6 +10,19 @@ import jist.core.sources.*;
 
 public final class Application {
 
+    private static JistSource createSource(JistSession session, ApplicationOptions options) throws Exception {
+        String location = options.getLocation();
+        if (location == null) {
+            return StreamSource.fromStandardInput(session);
+        }
+        else if (options.isSingleFileLocation()) {
+            return StreamSource.fromFile(session, location);
+        }
+        else {
+            return new DirectorySource(session, location);
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         ApplicationOptions options = ApplicationOptions.fromArguments(args);
         if (options.showHelp()) {
@@ -21,7 +34,7 @@ public final class Application {
             JistRuntime runtime = JavaRuntime.createRuntime(options.getRuntime());
 
             JistSession session = runtime.createSession(options);
-            JistSource source = new StreamSource(session, options.getLocation());
+            JistSource source = createSource(session, options);
 
             Jist jist = new Jist(session, source);
             runtime.execute(jist);

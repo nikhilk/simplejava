@@ -7,6 +7,7 @@ package jist;
 import java.io.*;
 import java.util.*;
 import jist.core.*;
+import jist.util.*;
 import joptsimple.*;
 
 final class ApplicationOptions extends JistOptions {
@@ -19,6 +20,7 @@ final class ApplicationOptions extends JistOptions {
 
     private String _error;
     private boolean _showHelp;
+    private boolean _singleFile;
     private String _location;
     private String _runtime;
 
@@ -67,18 +69,26 @@ final class ApplicationOptions extends JistOptions {
                 options = new ApplicationOptions();
 
                 File location = null;
+                String basePath = null;
 
                 List<String> arguments = (List<String>)parsedOptions.nonOptionArguments();
                 if (arguments.size() == 1) {
                     String value = arguments.get(0);
 
-                    if (value.length() != 0) {
+                    if (Strings.hasValue(value)) {
                         location = new File(value);
                         if (!location.exists()) {
                             options._error = "The file or directory " + value + " does not exist.";
                         }
                         else {
-                            options._location = value;
+                            options._location = location.getCanonicalPath();
+                            if (location.isFile()) {
+                                options._singleFile = true;
+                                basePath = location.getParentFile().getCanonicalPath();
+                            }
+                            else {
+                                basePath = location.getCanonicalPath();
+                            }
                         }
                     }
                 }
@@ -91,12 +101,8 @@ final class ApplicationOptions extends JistOptions {
                 options.setMavenPath(parsedOptions.valueOf(_mavenPathOption));
                 options.setMavenRepository(parsedOptions.valueOf(_mavenRepositoryOption));
 
-                String basePath = null;
-                if (location == null) {
+                if (basePath == null) {
                     basePath = System.getProperty("user.dir");
-                }
-                else {
-                    basePath = location.getParentFile().getCanonicalPath();
                 }
                 options.setBasePath(basePath);
             }
@@ -161,6 +167,10 @@ final class ApplicationOptions extends JistOptions {
 
     public String getRuntime() {
         return _runtime;
+    }
+
+    public boolean isSingleFileLocation() {
+        return _singleFile;
     }
 
     public boolean showHelp() {
