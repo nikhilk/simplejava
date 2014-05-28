@@ -1,21 +1,22 @@
 Loading jists
-- Directory
 - GitHub gist api
-
-Requires and dependencies
-- maven integration
-- classpath/classloader
-- jar manifest -> statically imported type
 
 Runtimes
 - HTTP server
 
+Expanders
+- JSON literal
+- RegEx patterns
+
 Compilation
 - Error handling and reporting
 - Persistence of compilation result
+- Debuggability
+- Incremental compilation instead of one set of compilation units
+- Updating/patching previous compilation results when files are changed
 
 Architecture
 - Dependency injection
 - Extensibility (eg. runtime extensions)
-- Multi-class jists (within 1 file, and across files)
+- Multi-file jists ... runtime vs. session abstractions
 
