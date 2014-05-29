@@ -19,14 +19,13 @@ public final class JavaSnippetRuntime extends JavaRuntime {
 
     @Override
     protected String createImplementation(Jist jist) throws IOException {
-        return String.format(JAVA_SOURCE_TEMPLATE,
-                             jist.getSession().getClassName(),
-                             jist.getSource().getSource(null));
+        String source = jist.getSource(null);
+        return String.format(JAVA_SOURCE_TEMPLATE, getClassName(), source);
     }
 
     @Override
     protected void runJist(Jist jist) {
-        Class<Runnable> jistClass = getClass(jist.getSession(), jist.getSession().getFullName());
+        Class<Runnable> jistClass = getClass(getFullClassName());
 
         Runnable jistInstance;
         try {

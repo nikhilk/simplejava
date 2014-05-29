@@ -11,11 +11,11 @@ public final class DirectorySource implements JistSource {
 
     private final static String DEFAULT_NAME = "main.jist";
 
-    private final JistSession _session;
+    private final JistRuntime _runtime;
     private final String _path;
 
-    public DirectorySource(JistSession session, String path) {
-        _session = session;
+    public DirectorySource(JistRuntime runtime, String path) {
+        _runtime = runtime;
         _path = path;
     }
 
@@ -27,7 +27,7 @@ public final class DirectorySource implements JistSource {
 
         File file = new File(_path, name);
         if (file.exists() && file.isFile()) {
-            StreamSource streamSource = StreamSource.fromFile(_session, file.getAbsolutePath());
+            StreamSource streamSource = StreamSource.fromFile(_runtime, file.getAbsolutePath());
             return streamSource.getSource(null);
         }
 

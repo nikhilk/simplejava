@@ -4,21 +4,17 @@
 
 package jist.core;
 
+import java.io.*;
+
 public final class Jist {
 
-    private final JistSession _session;
     private final JistSource _source;
 
-    public Jist(JistSession session, JistSource source) {
-        _session = session;
+    public Jist(JistSource source) {
         _source = source;
     }
 
-    public JistSession getSession() {
-        return _session;
-    }
-
-    public JistSource getSource() {
-        return _source;
+    public String getSource(String name) throws IOException {
+        return _source.getSource(name);
     }
 }

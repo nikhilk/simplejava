@@ -20,13 +20,13 @@ public final class JistPreprocessor {
     private final static Pattern pragmaPattern =
         Pattern.compile("^(?<pragma>(import)|(class)|(package)|(require))\\s+(?<name>[a-zA-Z0-9_\\.\\*:/]+)\\s*;$");
 
-    private JistSession _session;
+    private JistRuntime _runtime;
 
     private BufferedReader _codeReader;
     private CodeWriter _codeWriter;
 
-    public JistPreprocessor(JistSession session) {
-        _session = session;
+    public JistPreprocessor(JistRuntime runtime) {
+        _runtime = runtime;
     }
 
     public String preprocessCode(String code) throws IOException {
@@ -85,7 +85,7 @@ public final class JistPreprocessor {
             endMarker = ";";
         }
 
-        JistExpander macroExpander = _session.getExpander(macro);
+        JistExpander macroExpander = _runtime.getExpander(macro);
         if (macroExpander == null) {
             throw new JistErrorException("Could not find a matching expander for " + macro + " macro.");
         }
@@ -111,7 +111,7 @@ public final class JistPreprocessor {
             }
         }
 
-        String code = macroExpander.expand(_session, macro, declaration, macroText.toString());
+        String code = macroExpander.expand(_runtime, macro, declaration, macroText.toString());
         _codeWriter.writeLine(code);
 
         return lineCount;
@@ -121,18 +121,18 @@ public final class JistPreprocessor {
         // TODO: Some useful validation...
 
         if (pragma.equals("import")) {
-            _session.addImport(name);
+            _runtime.addImport(name);
         }
         else if (pragma.equals("class")) {
-            _session.specifyClassName(name);
+            _runtime.specifyClassName(name);
         }
         else if (pragma.equals("package")) {
-            _session.specifyPackageName(name);
+            _runtime.specifyPackageName(name);
         }
         else if (pragma.equals("require")) {
             try {
                 URI moduleURI = new URI(name);
-                _session.addModule(moduleURI);
+                _runtime.addModule(moduleURI);
             }
             catch (URISyntaxException e) {
                 throw new JistErrorException("Invalid module URL syntax.", e);

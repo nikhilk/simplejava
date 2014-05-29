@@ -11,7 +11,7 @@ import java.util.jar.*;
 import jist.core.*;
 import jist.util.*;
 
-public final class JarDependencies implements JistDependencies {
+final class JarDependencies {
 
     private static final String FILE_SCHEME = "file";
     private static final String MAVEN_SCHEME = "maven";
@@ -25,6 +25,9 @@ public final class JarDependencies implements JistDependencies {
     private final HashSet<URI> _moduleURIs;
     private final List<Module> _modules;
 
+    public String _classPath;
+    public ClassLoader _classLoader;
+
     public JarDependencies(JistOptions options) {
         _basePath = options.getBasePath();
         _mavenPath = options.getMavenPath();
@@ -32,6 +35,43 @@ public final class JarDependencies implements JistDependencies {
 
         _moduleURIs = new HashSet<URI>();
         _modules = new ArrayList<Module>();
+    }
+
+    public void addModule(URI moduleURI) throws JistErrorException {
+        String scheme = moduleURI.getScheme();
+        if (scheme == null) {
+            // To allow for unqualified URLs, representing relative file paths.
+            scheme = FILE_SCHEME;
+        }
+
+        if (!scheme.equals(MAVEN_SCHEME) && !scheme.equals(FILE_SCHEME)) {
+            throw new JistErrorException("The module url must either be a local file or a maven artifact.");
+        }
+
+        boolean mavenURI = false;
+        if (scheme.equals(MAVEN_SCHEME)) {
+            if (!supportsMavenModules()) {
+                throw new JistErrorException("Maven could not be found.");
+            }
+
+            mavenURI = true;
+        }
+
+        if (_moduleURIs.add(moduleURI)) {
+            _modules.add(new Module(moduleURI, mavenURI));
+        }
+    }
+
+    public ClassLoader getClassLoader() {
+        if (_classLoader == null) {
+            return Jist.class.getClassLoader();
+        }
+
+        return _classLoader;
+    }
+
+    public String getClassPath() {
+        return _classPath;
     }
 
     private String getModuleImport(String moduleJar) {
@@ -63,50 +103,13 @@ public final class JarDependencies implements JistDependencies {
         return null;
     }
 
-    private List<String> resolveModules() throws JistErrorException {
+    public void resolveModules(JavaRuntime runtime) throws JistErrorException {
         ArrayList<String> jars = new ArrayList<String>();
 
         for (Module module : _modules) {
             String jar = module.resolve();
             jars.add(jar);
         }
-
-        return jars;
-    }
-
-    private boolean supportsMavenModules() {
-        return Strings.hasValue(_mavenRepositoryPath) && Strings.hasValue(_mavenPath);
-    }
-
-    @Override
-    public void addModule(URI moduleURI) throws JistErrorException {
-        String scheme = moduleURI.getScheme();
-        if (scheme == null) {
-            // To allow for unqualified URLs, representing relative file paths.
-            scheme = FILE_SCHEME;
-        }
-
-        if (!scheme.equals(MAVEN_SCHEME) && !scheme.equals(FILE_SCHEME)) {
-            throw new JistErrorException("The module url must either be a local file or a maven artifact.");
-        }
-
-        boolean mavenURI = false;
-        if (scheme.equals(MAVEN_SCHEME)) {
-            if (!supportsMavenModules()) {
-                throw new JistErrorException("Maven could not be found.");
-            }
-
-            mavenURI = true;
-        }
-
-        if (_moduleURIs.add(moduleURI)) {
-            _modules.add(new Module(moduleURI, mavenURI));
-        }
-    }
-
-    @Override
-    public void resolveModules(JistSession session) throws JistErrorException {
-        List<String> jars = resolveModules();
 
         if (jars.size() != 0) {
             StringBuilder sb = new StringBuilder();
@@ -126,7 +129,7 @@ public final class JarDependencies implements JistDependencies {
 
                     String moduleImport = getModuleImport(jar);
                     if (Strings.hasValue(moduleImport)) {
-                        session.addStaticImport(moduleImport);
+                        runtime.addStaticImport(moduleImport);
                     }
                 }
                 catch (Exception e) {
@@ -134,12 +137,15 @@ public final class JarDependencies implements JistDependencies {
                 }
             }
 
-            String classPath = sb.toString();
-            URLClassLoader classLoader = new URLClassLoader(urls);
-
-            session.useDependencies(classPath, classLoader);
+            _classPath = sb.toString();
+            _classLoader = new URLClassLoader(urls);
         }
     }
+
+    private boolean supportsMavenModules() {
+        return Strings.hasValue(_mavenRepositoryPath) && Strings.hasValue(_mavenPath);
+    }
+
 
     private final class Module {
 
