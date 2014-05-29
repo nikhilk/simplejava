@@ -1,6 +1,10 @@
 Loading jists
 - GitHub gist api
 
+Maven support
+- Custom repositories
+- Transitive closure of dependencies
+
 Runtimes
 - HTTP server
 
@@ -11,6 +15,7 @@ Expanders
 Compilation
 - Error handling and reporting
 - Persistence of compilation result
+- Code + POM generation
 - Debuggability
 - Incremental compilation instead of one set of compilation units
 - Updating/patching previous compilation results when files are changed
@@ -19,4 +24,10 @@ Architecture
 - Dependency injection
 - Extensibility (eg. runtime extensions)
 - Multi-file jists ... runtime vs. session abstractions
+
+Usability
+- Docs
+- Packaging into executable
+- Distribution
+- Runtimes with scaffold/template generation mode
 
