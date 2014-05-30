@@ -22,6 +22,7 @@ final class ApplicationOptions extends JistOptions {
     private boolean _showHelp;
     private boolean _singleFile;
     private String _location;
+    private String _runtime;
 
     static {
         _parser = new OptionParser();
@@ -95,7 +96,8 @@ final class ApplicationOptions extends JistOptions {
                     options._error = "Only a single jist file or path can be specified.";
                 }
 
-                options.setRuntime(parsedOptions.valueOf(_runtimeOption));
+                options._runtime = parsedOptions.valueOf(_runtimeOption);
+
                 options.setMavenPath(parsedOptions.valueOf(_mavenPathOption));
                 options.setMavenRepository(parsedOptions.valueOf(_mavenRepositoryOption));
 
@@ -161,6 +163,10 @@ final class ApplicationOptions extends JistOptions {
 
     public String getLocation() {
         return _location;
+    }
+
+    public String getRuntime() {
+        return _runtime;
     }
 
     public boolean isSingleFileLocation() {

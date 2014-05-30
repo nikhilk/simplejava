@@ -6,9 +6,22 @@ package jist;
 
 import jist.core.*;
 import jist.core.java.*;
+import jist.core.java.runtimes.*;
 import jist.core.sources.*;
 
 public final class Application {
+
+    private static JistRuntime createRuntime(ApplicationOptions options) {
+        JavaRuntime runtime;
+        if (options.getRuntime().equals("eval")) {
+            runtime = new JavaEvalRuntime();
+        }
+        else {
+            runtime = new JavaSnippetRuntime();
+        }
+
+        return runtime;
+    }
 
     private static JistSource createSource(JistRuntime runtime, ApplicationOptions options) throws Exception {
         String location = options.getLocation();
@@ -31,8 +44,9 @@ public final class Application {
         }
 
         try {
-            JistRuntime runtime = JavaRuntime.createRuntime(options);
-            Jist jist = new Jist(createSource(runtime, options));
+            JistRuntime runtime = createRuntime(options);
+            JistSource source = createSource(runtime, options);
+            Jist jist = new Jist(source);
 
             runtime.execute(jist);
         }

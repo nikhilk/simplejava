@@ -62,19 +62,6 @@ public abstract class JavaRuntime implements JistRuntime {
         return sourceBuilder.toString();
     }
 
-    public static JistRuntime createRuntime(JistOptions options) {
-        JavaRuntime runtime;
-        if (options.getRuntime().equals("eval")) {
-            runtime = new JavaEvalRuntime();
-        }
-        else {
-            runtime = new JavaSnippetRuntime();
-        }
-
-        runtime.initialize(options);
-        return runtime;
-    }
-
     protected <T> Class<T> getClass(String fullName) {
         return _classFactory.getClass(fullName);
     }
@@ -113,11 +100,6 @@ public abstract class JavaRuntime implements JistRuntime {
         Arrays.sort(names);
 
         return names;
-    }
-
-    protected void initialize(JistOptions options) {
-        _dependencies = new JarDependencies(options);
-        _classFactory = new JavaClassFactory(_dependencies);
     }
 
     protected abstract void runJist(Jist jist);
@@ -162,6 +144,12 @@ public abstract class JavaRuntime implements JistRuntime {
     @Override
     public JistExpander getExpander(String name) {
         return _expanders.get(name);
+    }
+
+    @Override
+    public void initialize(JistOptions options) {
+        _dependencies = new JarDependencies(options);
+        _classFactory = new JavaClassFactory(_dependencies);
     }
 
     @Override
