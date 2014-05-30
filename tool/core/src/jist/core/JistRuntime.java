@@ -12,8 +12,6 @@ public interface JistRuntime {
 
     public JistRuntime addModule(URI moduleURI) throws JistErrorException;
 
-    public JistRuntime addStaticImport(String name);
-
     public void execute(Jist jist) throws Exception;
 
     public JistExpander getExpander(String name);

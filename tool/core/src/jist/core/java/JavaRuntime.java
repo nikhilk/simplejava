@@ -19,7 +19,6 @@ public abstract class JavaRuntime implements JistRuntime {
     private final HashMap<String, JistExpander> _expanders;
 
     private final HashSet<String> _imports;
-    private final HashSet<String> _staticImports;
 
     private String _className;
     private String _packageName;
@@ -29,7 +28,6 @@ public abstract class JavaRuntime implements JistRuntime {
         _expanders.put("text", new TextExpander());
 
         _imports = new HashSet<String>();
-        _staticImports = new HashSet<String>();
     }
 
     protected abstract String createImplementation(Jist jist) throws IOException;
@@ -49,7 +47,7 @@ public abstract class JavaRuntime implements JistRuntime {
             sourceBuilder.append(";\n");
         }
 
-        for (String importedReference : getStaticImports()) {
+        for (String importedReference : _dependencies.getImports()) {
             sourceBuilder.append("import static ");
             sourceBuilder.append(importedReference);
             sourceBuilder.append(";\n");
@@ -92,15 +90,6 @@ public abstract class JavaRuntime implements JistRuntime {
         return names;
     }
 
-    private String[] getStaticImports() {
-        String[] names = new String[_staticImports.size()];
-
-        _staticImports.toArray(names);
-        Arrays.sort(names);
-
-        return names;
-    }
-
     protected abstract void runJist(Jist jist);
 
     @Override
@@ -116,12 +105,6 @@ public abstract class JavaRuntime implements JistRuntime {
     }
 
     @Override
-    public JistRuntime addStaticImport(String name) {
-        _staticImports.add(name);
-        return this;
-    }
-
-    @Override
     public void execute(Jist jist) throws Exception {
         // First create the class implementation. This will cause pragmas
         // to get processed, and collect session info.
@@ -129,7 +112,7 @@ public abstract class JavaRuntime implements JistRuntime {
 
         // Now resolve dependencies, during which course, additional information
         // may be added to the session
-        _dependencies.resolveModules(this);
+        _dependencies.resolveModules();
 
         // Finally generate the compilation source, with all the collected information
         String source = createJavaSource(implementation);

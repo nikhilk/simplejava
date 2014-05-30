@@ -27,6 +27,7 @@ final class JarDependencies {
 
     public String _classPath;
     public ClassLoader _classLoader;
+    private HashSet<String> _imports;
 
     public JarDependencies(JistOptions options) {
         _basePath = options.getBasePath();
@@ -74,6 +75,19 @@ final class JarDependencies {
         return _classPath;
     }
 
+    public String[] getImports() {
+        if (_imports == null) {
+            return new String[0];
+        }
+
+        String[] names = new String[_imports.size()];
+
+        _imports.toArray(names);
+        Arrays.sort(names);
+
+        return names;
+    }
+
     private String getModuleImport(String moduleJar) {
         JarFile jar = null;
 
@@ -103,7 +117,7 @@ final class JarDependencies {
         return null;
     }
 
-    public void resolveModules(JavaRuntime runtime) throws JistErrorException {
+    public void resolveModules() throws JistErrorException {
         ArrayList<String> jars = new ArrayList<String>();
 
         for (Module module : _modules) {
@@ -129,7 +143,11 @@ final class JarDependencies {
 
                     String moduleImport = getModuleImport(jar);
                     if (Strings.hasValue(moduleImport)) {
-                        runtime.addStaticImport(moduleImport);
+                        if (_imports == null) {
+                            _imports = new HashSet<String>();
+                        }
+
+                        _imports.add(moduleImport);
                     }
                 }
                 catch (Exception e) {
