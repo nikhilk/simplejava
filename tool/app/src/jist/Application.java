@@ -5,9 +5,10 @@
 package jist;
 
 import jist.core.*;
+import jist.core.common.*;
 import jist.core.java.*;
 import jist.core.java.runtimes.*;
-import jist.core.sources.*;
+import jist.core.jists.*;
 
 public final class Application {
 
@@ -20,20 +21,26 @@ public final class Application {
             runtime = new JavaSnippetRuntime();
         }
 
+        runtime.initialize(options);
         return runtime;
     }
 
-    private static JistSource createSource(JistRuntime runtime, ApplicationOptions options) throws Exception {
+    private static Jist createJist(JistRuntime runtime, ApplicationOptions options) throws Exception {
         String location = options.getLocation();
+
+        Jist jist;
         if (location == null) {
-            return StreamSource.fromStandardInput(runtime);
+            jist = new ConsoleJist();
         }
         else if (options.isSingleFileLocation()) {
-            return StreamSource.fromFile(runtime, location);
+            jist = new FileJist(location);
         }
         else {
-            return new DirectorySource(runtime, location);
+            jist = new DirectoryJist(location);
         }
+
+        jist.initialize(new JistPreprocessor(runtime));
+        return jist;
     }
 
     public static void main(String[] args) throws Exception {
@@ -45,8 +52,7 @@ public final class Application {
 
         try {
             JistRuntime runtime = createRuntime(options);
-            JistSource source = createSource(runtime, options);
-            Jist jist = new Jist(source);
+            Jist jist = createJist(runtime, options);
 
             runtime.execute(jist);
         }

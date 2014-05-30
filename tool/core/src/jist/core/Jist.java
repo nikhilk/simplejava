@@ -5,16 +5,26 @@
 package jist.core;
 
 import java.io.*;
+import jist.core.common.*;
+import jist.util.*;
 
-public final class Jist {
+public abstract class Jist {
 
-    private final JistSource _source;
+    private JistPreprocessor _preprocessor;
 
-    public Jist(JistSource source) {
-        _source = source;
+    public void initialize(JistPreprocessor preprocessor) {
+        _preprocessor = preprocessor;
     }
 
     public String getSource(String name) throws IOException {
-        return _source.getSource(name);
+        String text = getSourceText(name);
+
+        if (Strings.hasValue(text) && (_preprocessor != null)) {
+            text = _preprocessor.preprocessCode(text);
+        }
+
+        return text;
     }
+
+    protected abstract String getSourceText(String name) throws IOException;
 }
