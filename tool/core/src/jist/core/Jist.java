@@ -9,17 +9,11 @@ import jist.util.*;
 
 public abstract class Jist {
 
-    private JistPreprocessor _preprocessor;
-
-    public void initialize(JistRuntime runtime) {
-        _preprocessor = runtime.getPreprocessor();
-    }
-
-    public String getSource(String name) throws IOException {
+    public String getSource(String name, JistPreprocessor preprocessor) throws IOException {
         String source = getSourceText(name);
 
-        if (Strings.hasValue(source) && (_preprocessor != null)) {
-            source = _preprocessor.preprocessSource(source);
+        if (Strings.hasValue(source) && (preprocessor != null)) {
+            source = preprocessor.preprocessSource(source);
         }
 
         return source;

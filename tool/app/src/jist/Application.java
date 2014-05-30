@@ -38,7 +38,6 @@ public final class Application {
             jist = new DirectoryJist(location);
         }
 
-        jist.initialize(runtime);
         return jist;
     }
 

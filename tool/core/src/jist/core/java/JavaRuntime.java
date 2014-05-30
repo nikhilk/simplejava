@@ -15,8 +15,7 @@ public abstract class JavaRuntime implements JistRuntime {
 
     private JarDependencies _dependencies;
     private JavaClassFactory _classFactory;
-
-    private final HashMap<String, JistExpander> _expanders;
+    private JavaPreprocessor _preprocessor;
 
     private final HashSet<String> _imports;
 
@@ -24,9 +23,6 @@ public abstract class JavaRuntime implements JistRuntime {
     private String _packageName;
 
     protected JavaRuntime() {
-        _expanders = new HashMap<String, JistExpander>();
-        _expanders.put("text", new TextExpander());
-
         _imports = new HashSet<String>();
     }
 
@@ -90,6 +86,10 @@ public abstract class JavaRuntime implements JistRuntime {
         return names;
     }
 
+    protected String loadSource(Jist jist, String name) throws IOException {
+        return jist.getSource(name, _preprocessor);
+    }
+
     protected abstract void runJist(Jist jist);
 
     @Override
@@ -124,19 +124,13 @@ public abstract class JavaRuntime implements JistRuntime {
     }
 
     @Override
-    public JistExpander getExpander(String name) {
-        return _expanders.get(name);
-    }
-
-    @Override
-    public JistPreprocessor getPreprocessor() {
-        return new JavaPreprocessor(this);
-    }
-
-    @Override
     public void initialize(JistOptions options) {
         _dependencies = new JarDependencies(options);
+
         _classFactory = new JavaClassFactory(_dependencies);
+
+        _preprocessor = new JavaPreprocessor(this);
+        _preprocessor.addExpander("text", new TextExpander());
     }
 
     @Override
