@@ -18,6 +18,8 @@ public interface JistRuntime {
 
     public JistExpander getExpander(String name);
 
+    public JistPreprocessor getPreprocessor();
+
     public void initialize(JistOptions options);
 
     public JistRuntime specifyClassName(String name) throws JistErrorException;

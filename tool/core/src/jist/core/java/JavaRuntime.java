@@ -9,7 +9,6 @@ import java.net.*;
 import java.util.*;
 import jist.core.*;
 import jist.core.java.expanders.*;
-import jist.core.java.runtimes.*;
 import jist.util.*;
 
 public abstract class JavaRuntime implements JistRuntime {
@@ -144,6 +143,11 @@ public abstract class JavaRuntime implements JistRuntime {
     @Override
     public JistExpander getExpander(String name) {
         return _expanders.get(name);
+    }
+
+    @Override
+    public JistPreprocessor getPreprocessor() {
+        return new JavaPreprocessor(this);
     }
 
     @Override

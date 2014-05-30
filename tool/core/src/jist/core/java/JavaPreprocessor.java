@@ -1,15 +1,15 @@
-// JistPreprocessor.java
+// JavaPreprocessor.java
 // jist/core
 //
 
-package jist.core.common;
+package jist.core.java;
 
 import java.io.*;
 import java.net.*;
 import java.util.regex.*;
 import jist.core.*;
 
-public final class JistPreprocessor {
+final class JavaPreprocessor implements JistPreprocessor {
 
     // Macros consist of a macro identifier, a variable declaration
     // and optionally a "heredoc" style end marker (useful if ';' is needed within the text).
@@ -22,50 +22,11 @@ public final class JistPreprocessor {
 
     private JistRuntime _runtime;
 
-    private BufferedReader _codeReader;
-    private CodeWriter _codeWriter;
+    private BufferedReader _sourceReader;
+    private TextWriter _sourceWriter;
 
-    public JistPreprocessor(JistRuntime runtime) {
+    public JavaPreprocessor(JistRuntime runtime) {
         _runtime = runtime;
-    }
-
-    public String preprocessCode(String code) throws IOException {
-        _codeReader = new BufferedReader(new StringReader(code));
-        _codeWriter = new CodeWriter();
-
-        int lineNumber = 0;
-        try {
-            String line = null;
-            while ((line = _codeReader.readLine()) != null) {
-                lineNumber++;
-
-                String trimmedLine = line.trim();
-                if (trimmedLine.startsWith("%")) {
-                    int linesConsumed = processMacro(trimmedLine);
-                    lineNumber += linesConsumed;
-
-                    continue;
-                }
-
-                Matcher matcher = pragmaPattern.matcher(trimmedLine);
-                if (matcher.matches()) {
-                    processPragma(matcher.group("pragma"), matcher.group("name"));
-                }
-                else {
-                    _codeWriter.writeLine(line);
-                }
-            }
-
-            code = _codeWriter.toString();
-        }
-        catch (JistErrorException e) {
-            System.out.println("Error: " + e.getMessage() + "[" + lineNumber + "]");
-        }
-        finally {
-            _codeReader.close();
-        }
-
-        return code;
     }
 
     private int processMacro(String startLine) throws IOException, JistErrorException {
@@ -93,7 +54,7 @@ public final class JistPreprocessor {
         MacroTextBuilder macroText = new MacroTextBuilder(trim);
 
         String line;
-        while ((line = _codeReader.readLine()) != null) {
+        while ((line = _sourceReader.readLine()) != null) {
             lineCount++;
 
             String trimmedLine = line.trim();
@@ -112,7 +73,7 @@ public final class JistPreprocessor {
         }
 
         String code = macroExpander.expand(_runtime, macro, declaration, macroText.toString());
-        _codeWriter.writeLine(code);
+        _sourceWriter.writeLine(code);
 
         return lineCount;
     }
@@ -140,8 +101,48 @@ public final class JistPreprocessor {
         }
     }
 
+    @Override
+    public String preprocessSource(String source) throws IOException {
+        _sourceReader = new BufferedReader(new StringReader(source));
+        _sourceWriter = new TextWriter();
 
-    private final class CodeWriter extends StringWriter {
+        int lineNumber = 0;
+        try {
+            String line = null;
+            while ((line = _sourceReader.readLine()) != null) {
+                lineNumber++;
+
+                String trimmedLine = line.trim();
+                if (trimmedLine.startsWith("%")) {
+                    int linesConsumed = processMacro(trimmedLine);
+                    lineNumber += linesConsumed;
+
+                    continue;
+                }
+
+                Matcher matcher = pragmaPattern.matcher(trimmedLine);
+                if (matcher.matches()) {
+                    processPragma(matcher.group("pragma"), matcher.group("name"));
+                }
+                else {
+                    _sourceWriter.writeLine(line);
+                }
+            }
+
+            source = _sourceWriter.toString();
+        }
+        catch (JistErrorException e) {
+            System.out.println("Error: " + e.getMessage() + "[" + lineNumber + "]");
+        }
+        finally {
+            _sourceWriter.close();
+        }
+
+        return source;
+    }
+
+
+    private final class TextWriter extends StringWriter {
 
         public void writeLine(String text) {
             write(text);

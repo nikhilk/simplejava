@@ -5,7 +5,6 @@
 package jist;
 
 import jist.core.*;
-import jist.core.common.*;
 import jist.core.java.*;
 import jist.core.java.runtimes.*;
 import jist.core.jists.*;
@@ -39,7 +38,7 @@ public final class Application {
             jist = new DirectoryJist(location);
         }
 
-        jist.initialize(new JistPreprocessor(runtime));
+        jist.initialize(runtime);
         return jist;
     }
 
