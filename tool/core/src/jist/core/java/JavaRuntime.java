@@ -28,7 +28,7 @@ public abstract class JavaRuntime implements JistRuntime {
 
     protected abstract String createImplementation(Jist jist) throws IOException;
 
-    private String createJavaSource(String implementation) throws IOException {
+    protected String createJavaSource(String implementation) throws IOException {
         StringBuilder sourceBuilder = new StringBuilder();
 
         if (Strings.hasValue(_packageName)) {
@@ -86,8 +86,11 @@ public abstract class JavaRuntime implements JistRuntime {
         return names;
     }
 
-    protected String loadSource(Jist jist, String name) throws IOException {
-        return jist.getSource(name, _preprocessor);
+    protected JistSource loadSource(Jist jist, String name) throws IOException {
+        JistSource source = jist.getSource(name);
+        source.applyPreprocessor(_preprocessor);
+
+        return source;
     }
 
     protected abstract void runJist(Jist jist);
@@ -107,11 +110,11 @@ public abstract class JavaRuntime implements JistRuntime {
     @Override
     public void execute(Jist jist) throws Exception {
         // First create the class implementation. This will cause pragmas
-        // to get processed, and collect session info.
+        // to get processed, and collect metadata about the source.
         String implementation = createImplementation(jist);
 
-        // Now resolve dependencies, during which course, additional information
-        // may be added to the session
+        // Now resolve dependencies, during which course, additional imports
+        // may be collected
         _dependencies.resolveModules();
 
         // Finally generate the compilation source, with all the collected information

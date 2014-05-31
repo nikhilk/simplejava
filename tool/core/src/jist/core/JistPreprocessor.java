@@ -19,8 +19,8 @@ public abstract class JistPreprocessor {
     private final JistRuntime _runtime;
     private final HashMap<String, JistExpander> _expanders;
 
-    private BufferedReader _sourceReader;
-    private TextWriter _sourceWriter;
+    private BufferedReader _textReader;
+    private TextWriter _textWriter;
 
     protected JistPreprocessor(JistRuntime runtime) {
         _runtime = runtime;
@@ -31,14 +31,16 @@ public abstract class JistPreprocessor {
         _expanders.put(name, expander);
     }
 
-    public String preprocessSource(String source) throws IOException {
-        _sourceReader = new BufferedReader(new StringReader(source));
-        _sourceWriter = new TextWriter();
+    public String preprocess(JistSource source) throws IOException {
+        String text = source.getText();
+
+        _textReader = new BufferedReader(new StringReader(text));
+        _textWriter = new TextWriter();
 
         int lineNumber = 0;
         try {
             String line = null;
-            while ((line = _sourceReader.readLine()) != null) {
+            while ((line = _textReader.readLine()) != null) {
                 lineNumber++;
 
                 String trimmedLine = line.trim();
@@ -51,20 +53,20 @@ public abstract class JistPreprocessor {
 
                 line = processLine(line);
                 if (line != null) {
-                    _sourceWriter.writeLine(line);
+                    _textWriter.writeLine(line);
                 }
             }
 
-            source = _sourceWriter.toString();
+            text = _textWriter.toString();
         }
         catch (JistErrorException e) {
             System.out.println("Error: " + e.getMessage() + "[" + lineNumber + "]");
         }
         finally {
-            _sourceWriter.close();
+            _textWriter.close();
         }
 
-        return source;
+        return text;
     }
 
     protected String processLine(String line) throws JistErrorException {
@@ -96,7 +98,7 @@ public abstract class JistPreprocessor {
         MacroTextBuilder macroText = new MacroTextBuilder(trim);
 
         String line;
-        while ((line = _sourceReader.readLine()) != null) {
+        while ((line = _textReader.readLine()) != null) {
             lineCount++;
 
             String trimmedLine = line.trim();
@@ -115,7 +117,7 @@ public abstract class JistPreprocessor {
         }
 
         String code = macroExpander.expand(_runtime, macro, declaration, macroText.toString());
-        _sourceWriter.writeLine(code);
+        _textWriter.writeLine(code);
 
         return lineCount;
     }

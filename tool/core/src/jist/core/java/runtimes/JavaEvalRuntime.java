@@ -24,8 +24,8 @@ public final class JavaEvalRuntime extends JavaRuntime {
 
     @Override
     protected String createImplementation(Jist jist) throws IOException {
-        String source = loadSource(jist, null);
-        return String.format(JAVA_SOURCE_TEMPLATE, getClassName(), source);
+        JistSource source = loadSource(jist, null);
+        return String.format(JAVA_SOURCE_TEMPLATE, getClassName(), source.getProcessedText());
     }
 
     @Override
