@@ -16,7 +16,7 @@ final class JavaPreprocessor extends JistPreprocessor {
     private final JavaRuntime _runtime;
 
     public JavaPreprocessor(JavaRuntime runtime) {
-        super(runtime);
+        super();
         _runtime = runtime;
     }
 

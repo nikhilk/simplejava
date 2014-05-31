@@ -16,14 +16,12 @@ public abstract class JistPreprocessor {
         Pattern.compile("^%(?<m>[a-z]+)\\s+->\\s+(?<decl>[a-z_][a-z_0-9]*)(\\s+<<(?<trim>-)?\\s*(?<end>[^\\s]+))?$",
                         Pattern.CASE_INSENSITIVE);
 
-    private final JistRuntime _runtime;
     private final HashMap<String, JistExpander> _expanders;
 
     private BufferedReader _textReader;
     private TextWriter _textWriter;
 
-    protected JistPreprocessor(JistRuntime runtime) {
-        _runtime = runtime;
+    protected JistPreprocessor() {
         _expanders = new HashMap<String, JistExpander>();
     }
 

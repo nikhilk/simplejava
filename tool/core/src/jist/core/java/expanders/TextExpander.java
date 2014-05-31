@@ -12,10 +12,7 @@ public final class TextExpander implements JistExpander {
 
     private final static String TEXT_CODE_TEMPLATE = "String %s = \"%s\";";
 
-    private final JavaRuntime _runtime;
-
     public TextExpander(JavaRuntime runtime) {
-        _runtime = runtime;
     }
 
     @Override
