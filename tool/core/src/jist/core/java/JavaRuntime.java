@@ -9,7 +9,6 @@ import java.net.*;
 import java.util.*;
 import jist.core.*;
 import jist.core.java.expanders.*;
-import jist.util.*;
 
 public abstract class JavaRuntime implements JistRuntime {
 
@@ -17,76 +16,16 @@ public abstract class JavaRuntime implements JistRuntime {
     private JavaClassFactory _classFactory;
     private JavaPreprocessor _preprocessor;
 
-    private final HashSet<String> _imports;
-
-    private String _className;
-    private String _packageName;
-
     protected JavaRuntime() {
-        _imports = new HashSet<String>();
     }
 
-    protected abstract String createImplementation(Jist jist) throws IOException;
-
-    protected String createJavaSource(String implementation) throws IOException {
-        StringBuilder sourceBuilder = new StringBuilder();
-
-        if (Strings.hasValue(_packageName)) {
-            sourceBuilder.append("package ");
-            sourceBuilder.append(_packageName);
-            sourceBuilder.append(";\n\n");
-        }
-
-        for (String importedReference : getImports()) {
-            sourceBuilder.append("import ");
-            sourceBuilder.append(importedReference);
-            sourceBuilder.append(";\n");
-        }
-
-        for (String importedReference : _dependencies.getImports()) {
-            sourceBuilder.append("import static ");
-            sourceBuilder.append(importedReference);
-            sourceBuilder.append(";\n");
-        }
-
-        sourceBuilder.append("\n");
-
-        sourceBuilder.append(implementation);
-        return sourceBuilder.toString();
-    }
+    protected abstract Map<String, String> createSource(Jist jist) throws IOException, JistErrorException;
 
     protected <T> Class<T> getClass(String fullName) {
         return _classFactory.getClass(fullName);
     }
 
-    protected String getClassName() {
-        if (_className == null) {
-            // Class name prefixed with "_" to make sure we always have a valid
-            // identifier name, even if the random string begins with a digit.
-            _className = "_" + Strings.randomString(8);
-        }
-        return _className;
-    }
-
-    protected String getFullClassName() {
-        if (Strings.isNullOrEmpty(_packageName)) {
-            return getClassName();
-        }
-        else {
-            return _packageName + "." + getClassName();
-        }
-    }
-
-    private String[] getImports() {
-        String[] names = new String[_imports.size()];
-
-        _imports.toArray(names);
-        Arrays.sort(names);
-
-        return names;
-    }
-
-    protected JistSource loadSource(Jist jist, String name) throws IOException {
+    protected JistSource loadSource(Jist jist, String name) throws IOException, JistErrorException {
         JistSource source = jist.getSource(name);
         source.applyPreprocessor(_preprocessor);
 
@@ -96,31 +35,20 @@ public abstract class JavaRuntime implements JistRuntime {
     protected abstract void runJist(Jist jist);
 
     @Override
-    public JistRuntime addImport(String name) {
-        _imports.add(name);
-        return this;
-    }
-
-    @Override
-    public JistRuntime addModule(URI moduleURI) throws JistErrorException {
-        _dependencies.addModule(moduleURI);
-        return this;
+    public String addModule(URI moduleURI) throws JistErrorException {
+        return _dependencies.addModule(moduleURI);
     }
 
     @Override
     public void execute(Jist jist) throws Exception {
-        // First create the class implementation. This will cause pragmas
-        // to get processed, and collect metadata about the source.
-        String implementation = createImplementation(jist);
+        Map<String, String> source = createSource(jist);
 
-        // Now resolve dependencies, during which course, additional imports
-        // may be collected
-        _dependencies.resolveModules();
+        List<JavaFile> compilationUnits = new ArrayList<JavaFile>(source.size());
+        for (Map.Entry<String, String> sourceEntry : source.entrySet()) {
+            compilationUnits.add(new JavaFile(sourceEntry.getKey(), sourceEntry.getValue()));
+        }
 
-        // Finally generate the compilation source, with all the collected information
-        String source = createJavaSource(implementation);
-
-        boolean compiled = _classFactory.compile(_className, source);
+        boolean compiled = _classFactory.compile(compilationUnits);
         if (compiled) {
             runJist(jist);
         }
@@ -133,26 +61,6 @@ public abstract class JavaRuntime implements JistRuntime {
         _classFactory = new JavaClassFactory(_dependencies);
 
         _preprocessor = new JavaPreprocessor(this);
-        _preprocessor.addExpander("text", new TextExpander());
-    }
-
-    @Override
-    public JistRuntime specifyClassName(String name) throws JistErrorException {
-        if (_className != null) {
-            throw new JistErrorException("Class name cannot be set multiple times.");
-        }
-
-        _className = name;
-        return this;
-    }
-
-    @Override
-    public JistRuntime specifyPackageName(String name) throws JistErrorException {
-        if (_packageName != null) {
-            throw new JistErrorException("Package name cannot be set multiple times.");
-        }
-
-        _packageName = name;
-        return this;
+        _preprocessor.addExpander("text", new TextExpander(this));
     }
 }

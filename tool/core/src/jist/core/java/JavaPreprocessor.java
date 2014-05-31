@@ -21,32 +21,36 @@ final class JavaPreprocessor extends JistPreprocessor {
     }
 
     @Override
-    protected String processLine(String line) throws JistErrorException {
+    protected String processLine(JistSource source, String line) throws JistErrorException {
         Matcher matcher = pragmaPattern.matcher(line.trim());
         if (matcher.matches()) {
-            processPragma(matcher.group("pragma"), matcher.group("name"));
+            processPragma(source, matcher.group("pragma"), matcher.group("name"));
             return null;
         }
 
-        return super.processLine(line);
+        return super.processLine(source, line);
     }
 
-    private void processPragma(String pragma, String name) throws JistErrorException {
+    private void processPragma(JistSource source, String pragma, String name) throws JistErrorException {
         // TODO: Some useful validation...
 
         if (pragma.equals("import")) {
-            _runtime.addImport(name);
+            JavaSource.addImport(source, name);
         }
         else if (pragma.equals("class")) {
-            _runtime.specifyClassName(name);
+            JavaSource.setClassName(source, name);
         }
         else if (pragma.equals("package")) {
-            _runtime.specifyPackageName(name);
+            JavaSource.setPackageName(source, name);
         }
         else if (pragma.equals("require")) {
             try {
                 URI moduleURI = new URI(name);
-                _runtime.addModule(moduleURI);
+                String moduleImport = _runtime.addModule(moduleURI);
+
+                if (moduleImport != null) {
+                    JavaSource.addModule(source, moduleImport);
+                }
             }
             catch (URISyntaxException e) {
                 throw new JistErrorException("Invalid module URL syntax.", e);

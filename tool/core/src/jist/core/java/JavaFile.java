@@ -1,4 +1,4 @@
-// JistFile.java
+// JavaFile.java
 // jist/core
 //
 

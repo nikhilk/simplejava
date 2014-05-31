@@ -6,5 +6,5 @@ package jist.core;
 
 public interface JistExpander {
 
-    public String expand(JistRuntime runtime, String macro, String declaration, String data);
+    public String expand(JistSource source, String macro, String declaration, String data);
 }

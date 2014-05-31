@@ -45,13 +45,13 @@ public abstract class JistPreprocessor {
 
                 String trimmedLine = line.trim();
                 if (trimmedLine.startsWith("%")) {
-                    int linesConsumed = processMacro(trimmedLine);
+                    int linesConsumed = processMacro(source, trimmedLine);
                     lineNumber += linesConsumed;
 
                     continue;
                 }
 
-                line = processLine(line);
+                line = processLine(source, line);
                 if (line != null) {
                     _textWriter.writeLine(line);
                 }
@@ -69,11 +69,11 @@ public abstract class JistPreprocessor {
         return text;
     }
 
-    protected String processLine(String line) throws JistErrorException {
+    protected String processLine(JistSource source, String line) throws JistErrorException {
         return line;
     }
 
-    private int processMacro(String startLine) throws IOException, JistErrorException {
+    private int processMacro(JistSource source, String startLine) throws IOException, JistErrorException {
         int lineCount = 0;
 
         Matcher m = macroPattern.matcher(startLine);
@@ -116,7 +116,7 @@ public abstract class JistPreprocessor {
             }
         }
 
-        String code = macroExpander.expand(_runtime, macro, declaration, macroText.toString());
+        String code = macroExpander.expand(source, macro, declaration, macroText.toString());
         _textWriter.writeLine(code);
 
         return lineCount;

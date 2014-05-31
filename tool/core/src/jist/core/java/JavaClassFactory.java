@@ -17,10 +17,7 @@ final class JavaClassFactory {
         _dependencies = dependencies;
     }
 
-    public boolean compile(String name, String source) throws Exception {
-        List<JavaFileObject> compilationUnits = new ArrayList<JavaFileObject>();
-        compilationUnits.add(new JavaFile(name, source));
-
+    public boolean compile(List<JavaFile> compilationUnits) throws Exception {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         List<String> options = new ArrayList<String>();
 
