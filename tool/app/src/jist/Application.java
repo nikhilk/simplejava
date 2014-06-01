@@ -31,6 +31,9 @@ public final class Application {
         if (location == null) {
             jist = new ConsoleJist();
         }
+        else if (options.isGistLocation()) {
+            jist = new GistJist(location);
+        }
         else if (options.isSingleFileLocation()) {
             jist = new FileJist(location);
         }

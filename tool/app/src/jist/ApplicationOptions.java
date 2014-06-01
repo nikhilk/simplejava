@@ -16,11 +16,13 @@ final class ApplicationOptions extends JistRuntimeOptions {
     private final static OptionSpec<String> _runtimeOption;
     private final static OptionSpec<String> _mavenPathOption;
     private final static OptionSpec<String> _mavenRepositoryOption;
+    private final static OptionSpec<Void> _gistOption;
     private final static OptionSpec<Void> _helpOption;
 
     private String _error;
     private boolean _showHelp;
     private boolean _singleFile;
+    private boolean _gist;
     private String _location;
     private String _runtime;
 
@@ -49,6 +51,9 @@ final class ApplicationOptions extends JistRuntimeOptions {
                    .describedAs("path")
                    .defaultsTo(getDefaultMavenRepository());
 
+        _gistOption =
+            _parser.accepts("gist", "indicates the location should be interpreted as a gist id");
+
         _helpOption =
             _parser.acceptsAll(Arrays.asList("help", "?"), "shows this help information")
                    .forHelp();
@@ -72,23 +77,30 @@ final class ApplicationOptions extends JistRuntimeOptions {
                 String basePath = null;
 
                 List<String> arguments = (List<String>)parsedOptions.nonOptionArguments();
-                if (arguments.size() == 1) {
+                if (parsedOptions.has(_gistOption)) {
+                    if (arguments.size() != 1) {
+                        options._error = "A single gist id must be specified.";
+                    }
+                    else {
+                        options._location = arguments.get(0);
+                        options._gist = true;
+                    }
+                }
+                else if (arguments.size() == 1) {
                     String value = arguments.get(0);
 
-                    if (Strings.hasValue(value)) {
-                        location = new File(value);
-                        if (!location.exists()) {
-                            options._error = "The file or directory " + value + " does not exist.";
+                    location = new File(value);
+                    if (!location.exists()) {
+                        options._error = "The file or directory " + value + " does not exist.";
+                    }
+                    else {
+                        options._location = location.getCanonicalPath();
+                        if (location.isFile()) {
+                            options._singleFile = true;
+                            basePath = location.getParentFile().getCanonicalPath();
                         }
                         else {
-                            options._location = location.getCanonicalPath();
-                            if (location.isFile()) {
-                                options._singleFile = true;
-                                basePath = location.getParentFile().getCanonicalPath();
-                            }
-                            else {
-                                basePath = location.getCanonicalPath();
-                            }
+                            basePath = location.getCanonicalPath();
                         }
                     }
                 }
@@ -167,6 +179,10 @@ final class ApplicationOptions extends JistRuntimeOptions {
 
     public String getRuntime() {
         return _runtime;
+    }
+
+    public boolean isGistLocation() {
+        return _gist;
     }
 
     public boolean isSingleFileLocation() {

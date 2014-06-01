@@ -11,6 +11,8 @@ import java.io.*;
  */
 public abstract class Jist {
 
+    protected final static String DEFAULT_NAME = "main.java";
+
     private JistPreprocessor _preprocessor;
 
     /**

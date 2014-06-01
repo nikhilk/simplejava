@@ -14,8 +14,6 @@ import jist.util.*;
  */
 public final class DirectoryJist extends Jist {
 
-    private final static String DEFAULT_NAME = "main.jist";
-
     private final String _path;
 
     /**
@@ -32,7 +30,7 @@ public final class DirectoryJist extends Jist {
     @Override
     protected String getSourceText(String name) throws IOException {
         if (name == null) {
-            name = DEFAULT_NAME;
+            name = Jist.DEFAULT_NAME;
         }
 
         File file = new File(_path, name);
