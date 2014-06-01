@@ -21,4 +21,10 @@ public interface JistRuntime {
      * @param options the options to customize the runtime behavior.
      */
     public void initialize(JistRuntimeOptions options);
+
+    /**
+     * Gets the preprocessor to apply to sources within the Jist.
+     * @return the preprocessor to apply.
+     */
+    public JistPreprocessor getPreprocessor();
 }

@@ -26,7 +26,7 @@ public final class JavaEvalRuntime extends JavaRuntime {
     private String _runnableClassName;
 
     @Override
-    protected Map<String, String> createSource(Jist jist) throws IOException, JistErrorException {
+    protected Map<String, String> createSources(Jist jist) throws IOException, JistErrorException {
         JistSource source = jist.getSource(null);
         String className = JavaSource.getClassName(source);
 

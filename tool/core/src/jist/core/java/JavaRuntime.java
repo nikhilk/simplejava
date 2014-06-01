@@ -15,7 +15,6 @@ import jist.core.java.expanders.*;
 public abstract class JavaRuntime implements JistRuntime {
 
     private JarDependencies _dependencies;
-    private JavaClassFactory _classFactory;
     private JavaPreprocessor _preprocessor;
 
     /**
@@ -31,7 +30,7 @@ public abstract class JavaRuntime implements JistRuntime {
      * @throws IOException
      * @throws JistErrorException
      */
-    protected abstract Map<String, String> createSource(Jist jist) throws IOException, JistErrorException;
+    protected abstract Map<String, String> createSources(Jist jist) throws IOException, JistErrorException;
 
     /**
      * Runs the specified jist once its associated code has been compiled.
@@ -45,17 +44,12 @@ public abstract class JavaRuntime implements JistRuntime {
      */
     @Override
     public void execute(Jist jist) throws Exception {
-        jist.addPreprocessor(_preprocessor);
+        Map<String, String> sources = createSources(jist);
+        ClassFactory classFactory = ClassFactory.create(_dependencies, sources);
 
-        List<JavaFile> compilationUnits = new ArrayList<JavaFile>();
-        Map<String, String> source = createSource(jist);
-        for (Map.Entry<String, String> sourceEntry : source.entrySet()) {
-            compilationUnits.add(new JavaFile(sourceEntry.getKey(), sourceEntry.getValue()));
-        }
-
-        boolean compiled = _classFactory.compile(compilationUnits);
-        if (compiled) {
-            runJist(jist, _classFactory.getClassLoader());
+        ClassLoader classLoader = classFactory.getClassLoader();
+        if (classLoader != null) {
+            runJist(jist, classLoader);
         }
     }
 
@@ -66,9 +60,15 @@ public abstract class JavaRuntime implements JistRuntime {
     public void initialize(JistRuntimeOptions options) {
         _dependencies = new JarDependencies(options);
 
-        _classFactory = new JavaClassFactory(_dependencies);
-
         _preprocessor = new JavaPreprocessor(_dependencies);
         _preprocessor.registerExpander("text", new TextExpander(this));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JistPreprocessor getPreprocessor() {
+        return _preprocessor;
     }
 }

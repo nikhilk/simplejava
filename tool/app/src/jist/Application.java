@@ -38,6 +38,11 @@ public final class Application {
             jist = new DirectoryJist(location);
         }
 
+        JistPreprocessor preprocessor = runtime.getPreprocessor();
+        if (preprocessor != null) {
+            jist.addPreprocessor(preprocessor);
+        }
+
         return jist;
     }
 
