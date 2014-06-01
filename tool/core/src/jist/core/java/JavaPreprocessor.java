@@ -13,11 +13,11 @@ final class JavaPreprocessor extends JistPreprocessor {
     private final static Pattern pragmaPattern =
         Pattern.compile("^(?<pragma>(import)|(class)|(package)|(require))\\s+(?<name>[a-zA-Z0-9_\\.\\*:/]+)\\s*;$");
 
-    private final JavaRuntime _runtime;
+    private final JarDependencies _dependencies;
 
-    public JavaPreprocessor(JavaRuntime runtime) {
+    public JavaPreprocessor(JarDependencies dependencies) {
         super();
-        _runtime = runtime;
+        _dependencies = dependencies;
     }
 
     @Override
@@ -46,7 +46,7 @@ final class JavaPreprocessor extends JistPreprocessor {
         else if (pragma.equals("require")) {
             try {
                 URI moduleURI = new URI(name);
-                String moduleImport = _runtime.addModule(moduleURI);
+                String moduleImport = _dependencies.addModule(moduleURI);
 
                 if (moduleImport != null) {
                     JavaSource.addModule(source, moduleImport);

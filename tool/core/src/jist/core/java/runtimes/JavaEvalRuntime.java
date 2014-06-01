@@ -27,7 +27,7 @@ public final class JavaEvalRuntime extends JavaRuntime {
 
     @Override
     protected Map<String, String> createSource(Jist jist) throws IOException, JistErrorException {
-        JistSource source = loadSource(jist, null);
+        JistSource source = jist.getSource(null);
         String className = JavaSource.getClassName(source);
 
         _runnableClassName = JavaSource.getFullClassName(source);
@@ -41,13 +41,13 @@ public final class JavaEvalRuntime extends JavaRuntime {
         return files;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    protected void runJist(Jist jist) {
-        Class<Runnable> jistClass = getClass(_runnableClassName);
-
-        Runnable jistInstance;
+    protected void runJist(Jist jist, ClassLoader classLoader) {
         try {
-            jistInstance = jistClass.newInstance();
+            Class<Runnable> jistClass = (Class<Runnable>)classLoader.loadClass(_runnableClassName);
+            Runnable jistInstance = jistClass.newInstance();
+
             jistInstance.run();
         }
         catch (Exception e) {

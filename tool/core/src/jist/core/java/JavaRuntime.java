@@ -5,62 +5,70 @@
 package jist.core.java;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
 import jist.core.*;
 import jist.core.java.expanders.*;
 
+/**
+ * Base class for Jists executed as Java code.
+ */
 public abstract class JavaRuntime implements JistRuntime {
 
     private JarDependencies _dependencies;
     private JavaClassFactory _classFactory;
     private JavaPreprocessor _preprocessor;
 
+    /**
+     * Creates and initializes an instance of a JavaRuntime.
+     */
     protected JavaRuntime() {
     }
 
+    /**
+     * Generates code to be compiled for the specified Jist.
+     * @param jist the jist to convert to compilabe code.
+     * @return compilable code stored in form of file name/content tuples.
+     * @throws IOException
+     * @throws JistErrorException
+     */
     protected abstract Map<String, String> createSource(Jist jist) throws IOException, JistErrorException;
 
-    protected <T> Class<T> getClass(String fullName) {
-        return _classFactory.getClass(fullName);
-    }
+    /**
+     * Runs the specified jist once its associated code has been compiled.
+     * @param jist the jist to run.
+     * @param classLoader the class loader to load compiled classes.
+     */
+    protected abstract void runJist(Jist jist, ClassLoader classLoader);
 
-    protected JistSource loadSource(Jist jist, String name) throws IOException, JistErrorException {
-        JistSource source = jist.getSource(name);
-        source.applyPreprocessor(_preprocessor);
-
-        return source;
-    }
-
-    protected abstract void runJist(Jist jist);
-
-    @Override
-    public String addModule(URI moduleURI) throws JistErrorException {
-        return _dependencies.addModule(moduleURI);
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void execute(Jist jist) throws Exception {
-        Map<String, String> source = createSource(jist);
+        jist.addPreprocessor(_preprocessor);
 
-        List<JavaFile> compilationUnits = new ArrayList<JavaFile>(source.size());
+        List<JavaFile> compilationUnits = new ArrayList<JavaFile>();
+        Map<String, String> source = createSource(jist);
         for (Map.Entry<String, String> sourceEntry : source.entrySet()) {
             compilationUnits.add(new JavaFile(sourceEntry.getKey(), sourceEntry.getValue()));
         }
 
         boolean compiled = _classFactory.compile(compilationUnits);
         if (compiled) {
-            runJist(jist);
+            runJist(jist, _classFactory.getClassLoader());
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void initialize(JistOptions options) {
+    public void initialize(JistRuntimeOptions options) {
         _dependencies = new JarDependencies(options);
 
         _classFactory = new JavaClassFactory(_dependencies);
 
-        _preprocessor = new JavaPreprocessor(this);
-        _preprocessor.addExpander("text", new TextExpander(this));
+        _preprocessor = new JavaPreprocessor(_dependencies);
+        _preprocessor.registerExpander("text", new TextExpander(this));
     }
 }

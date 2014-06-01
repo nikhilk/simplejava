@@ -29,7 +29,7 @@ final class JarDependencies {
     private String _classPath;
     private ClassLoader _classLoader;
 
-    public JarDependencies(JistOptions options) {
+    public JarDependencies(JistRuntimeOptions options) {
         _basePath = options.getBasePath();
         _mavenPath = options.getMavenPath();
         _mavenRepositoryPath = options.getMavenRepository();

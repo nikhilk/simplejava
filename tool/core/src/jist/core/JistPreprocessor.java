@@ -8,6 +8,10 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
+/*
+ * Provides basic pre-processing functionality for Jists, specifically
+ * handling of macro syntax and expanding macro declarations.
+ */
 public abstract class JistPreprocessor {
 
     // Macros consist of a macro identifier, a variable declaration
@@ -21,15 +25,20 @@ public abstract class JistPreprocessor {
     private BufferedReader _textReader;
     private TextWriter _textWriter;
 
+    /**
+     * Constructs and initializes an instance of JistProcessor.
+     */
     protected JistPreprocessor() {
         _expanders = new HashMap<String, JistExpander>();
     }
 
-    public void addExpander(String name, JistExpander expander) {
-        _expanders.put(name, expander);
-    }
-
-    public String preprocess(JistSource source) throws IOException {
+    /**
+     * Processes the text associated with the specified source.
+     * @param source the source whose text should be processed.
+     * @return the processed text.
+     * @throws IOException
+     */
+    public String process(JistSource source) throws IOException {
         String text = source.getText();
 
         _textReader = new BufferedReader(new StringReader(text));
@@ -67,6 +76,13 @@ public abstract class JistPreprocessor {
         return text;
     }
 
+    /**
+     * Processes an individual line of text within the specified source.
+     * @param source the source containing the line of text.
+     * @param line the line of text to be processed.
+     * @return the processed line to use when producing new text, null if the line should be ignored.
+     * @throws JistErrorException
+     */
     protected String processLine(JistSource source, String line) throws JistErrorException {
         return line;
     }
@@ -118,6 +134,15 @@ public abstract class JistPreprocessor {
         _textWriter.writeLine(code);
 
         return lineCount;
+    }
+
+    /**
+     * Registers a macro expander to use during preprocessing.
+     * @param name the macro name.
+     * @param expander the expander associated with the specific macro name.
+     */
+    public void registerExpander(String name, JistExpander expander) {
+        _expanders.put(name, expander);
     }
 
 

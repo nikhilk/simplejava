@@ -33,13 +33,7 @@ final class JavaClassFactory {
                        .call();
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> Class<T> getClass(String fullName) {
-        try {
-            return (Class<T>)_classManager.getClassLoader(null).loadClass(fullName);
-        }
-        catch (ClassNotFoundException e) {
-            return null;
-        }
+    public ClassLoader getClassLoader() {
+        return _classManager.getClassLoader(null);
     }
 }

@@ -10,7 +10,7 @@ import jist.core.*;
 import jist.util.*;
 import joptsimple.*;
 
-final class ApplicationOptions extends JistOptions {
+final class ApplicationOptions extends JistRuntimeOptions {
 
     private final static OptionParser _parser;
     private final static OptionSpec<String> _runtimeOption;
