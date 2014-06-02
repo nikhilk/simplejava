@@ -13,11 +13,11 @@ final class JavaPreprocessor extends JistPreprocessor {
     private final static Pattern pragmaPattern =
         Pattern.compile("^(?<pragma>(import)|(class)|(package)|(require))\\s+(?<name>[a-zA-Z0-9_\\.\\*:/]+)\\s*;$");
 
-    private final JarDependencies _dependencies;
+    private final JistDependencies _dependencies;
 
-    public JavaPreprocessor(JarDependencies dependencies) {
+    public JavaPreprocessor(JavaRuntime runtime) {
         super();
-        _dependencies = dependencies;
+        _dependencies = runtime.getDependencies();
     }
 
     @Override

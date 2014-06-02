@@ -33,6 +33,14 @@ public abstract class JavaRuntime implements JistRuntime {
     protected abstract Map<String, String> createSources(Jist jist) throws IOException, JistErrorException;
 
     /**
+     * Gets the dependencies associated with the current runtime/jist.
+     * @return the dependencies manager.
+     */
+    public JistDependencies getDependencies() {
+        return _dependencies;
+    }
+
+    /**
      * Runs the specified jist once its associated code has been compiled.
      * @param jist the jist to run.
      * @param classLoader the class loader to load compiled classes.
@@ -60,8 +68,9 @@ public abstract class JavaRuntime implements JistRuntime {
     public void initialize(JistRuntimeOptions options) {
         _dependencies = new JarDependencies(options);
 
-        _preprocessor = new JavaPreprocessor(_dependencies);
+        _preprocessor = new JavaPreprocessor(this);
         _preprocessor.registerExpander("text", new TextExpander(this));
+        _preprocessor.registerExpander("json", new JsonExpander(this));
     }
 
     /**

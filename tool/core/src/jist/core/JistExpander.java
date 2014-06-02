@@ -16,6 +16,7 @@ public interface JistExpander {
      * @param declaration the variable associated with the macro declaration.
      * @param data the data within the macro declaration.
      * @return the resulting text to use as a result of expanding the macro.
+     * @throws JistErrorException
      */
-    public String expand(JistSource source, String macro, String declaration, String data);
+    public String expand(JistSource source, String macro, String declaration, String data) throws JistErrorException;
 }

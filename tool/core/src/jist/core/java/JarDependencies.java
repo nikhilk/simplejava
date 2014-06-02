@@ -11,7 +11,7 @@ import java.util.jar.*;
 import jist.core.*;
 import jist.util.*;
 
-final class JarDependencies {
+final class JarDependencies implements JistDependencies {
 
     private static final String FILE_SCHEME = "file";
     private static final String MAVEN_SCHEME = "maven";
@@ -36,47 +36,6 @@ final class JarDependencies {
 
         _modules = new HashMap<URI, String>();
         _jars = new ArrayList<String>();
-    }
-
-    public String addModule(URI moduleURI) throws JistErrorException {
-        if (_resolved) {
-            throw new JistErrorException("Additional modules cannot be referenced.");
-        }
-
-        String moduleImport = null;
-        if (_modules.containsKey(moduleURI)) {
-            moduleImport = _modules.get(moduleURI);
-        }
-        else {
-            String scheme = moduleURI.getScheme();
-            if (scheme == null) {
-                // To allow for unqualified URLs, representing relative file paths.
-                scheme = FILE_SCHEME;
-            }
-
-            if (!scheme.equals(MAVEN_SCHEME) && !scheme.equals(FILE_SCHEME)) {
-                throw new JistErrorException("The module url must either be a local file or a maven artifact.");
-            }
-
-            boolean mavenURI = false;
-            if (scheme.equals(MAVEN_SCHEME)) {
-                if (!supportsMavenModules()) {
-                    throw new JistErrorException("Maven could not be found.");
-                }
-
-                mavenURI = true;
-            }
-
-            Module module = new Module(moduleURI, mavenURI);
-
-            String jar = module.resolve();
-            _jars.add(jar);
-
-            moduleImport = getModuleImport(jar);
-            _modules.put(moduleURI, moduleImport);
-        }
-
-        return moduleImport;
     }
 
     public ClassLoader getClassLoader() throws JistErrorException {
@@ -163,6 +122,48 @@ final class JarDependencies {
 
     private boolean supportsMavenModules() {
         return Strings.hasValue(_mavenRepositoryPath) && Strings.hasValue(_mavenPath);
+    }
+
+    @Override
+    public String addModule(URI moduleURI) throws JistErrorException {
+        if (_resolved) {
+            throw new JistErrorException("Additional modules cannot be referenced.");
+        }
+
+        String moduleImport = null;
+        if (_modules.containsKey(moduleURI)) {
+            moduleImport = _modules.get(moduleURI);
+        }
+        else {
+            String scheme = moduleURI.getScheme();
+            if (scheme == null) {
+                // To allow for unqualified URLs, representing relative file paths.
+                scheme = FILE_SCHEME;
+            }
+
+            if (!scheme.equals(MAVEN_SCHEME) && !scheme.equals(FILE_SCHEME)) {
+                throw new JistErrorException("The module url must either be a local file or a maven artifact.");
+            }
+
+            boolean mavenURI = false;
+            if (scheme.equals(MAVEN_SCHEME)) {
+                if (!supportsMavenModules()) {
+                    throw new JistErrorException("Maven could not be found.");
+                }
+
+                mavenURI = true;
+            }
+
+            Module module = new Module(moduleURI, mavenURI);
+
+            String jar = module.resolve();
+            _jars.add(jar);
+
+            moduleImport = getModuleImport(jar);
+            _modules.put(moduleURI, moduleImport);
+        }
+
+        return moduleImport;
     }
 
 
