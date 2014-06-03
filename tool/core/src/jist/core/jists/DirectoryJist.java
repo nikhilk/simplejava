@@ -29,10 +29,6 @@ public final class DirectoryJist extends Jist {
      */
     @Override
     protected String getSourceText(String name) throws IOException {
-        if (name == null) {
-            name = Jist.DEFAULT_NAME;
-        }
-
         File file = new File(_path, name);
         if (file.exists() && file.isFile()) {
             return StreamReader.read(new FileInputStream(file));

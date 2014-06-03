@@ -11,8 +11,6 @@ import java.io.*;
  */
 public abstract class Jist {
 
-    protected final static String DEFAULT_NAME = "main.java";
-
     private JistPreprocessor _preprocessor;
 
     /**
@@ -31,8 +29,11 @@ public abstract class Jist {
      */
     public JistSource getSource(String name) throws IOException {
         String text = getSourceText(name);
-        JistSource source = new JistSource(name, text);
+        if (text == null) {
+            return null;
+        }
 
+        JistSource source = new JistSource(name, text);
         if (_preprocessor != null) {
             source.applyPreprocessor(_preprocessor);
         }

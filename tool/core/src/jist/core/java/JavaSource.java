@@ -10,6 +10,9 @@ import jist.util.*;
 
 public final class JavaSource {
 
+    public final static String DEFAULT_SOURCE_NAME = "main.java";
+    public final static String METADATA_SOURCE_NAME = "jist.java";
+
     private final static String CLASS_KEY = "class";
     private final static String PACKAGE_KEY = "package";
     private final static String IMPORTS_KEY = "imports";

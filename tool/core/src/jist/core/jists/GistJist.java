@@ -36,10 +36,6 @@ public final class GistJist extends Jist {
             _gistFiles = loadGistFiles();
         }
 
-        if (name == null) {
-            name = Jist.DEFAULT_NAME;
-        }
-
         // Since GitHub doesn't allow '/' in gist file names, we'll use
         // a convention where ':' in the file name corresponds to the path
         // separator.

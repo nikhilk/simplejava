@@ -1,7 +1,6 @@
 Code
 - runtime specific config
 - preprocessing only java files in multi-file jists having non-java files
-- jist.java for metadata (in multi-file jist scenarios)
 
 Maven support
 - Custom repositories
