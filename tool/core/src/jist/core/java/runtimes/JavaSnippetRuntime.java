@@ -18,20 +18,27 @@ public final class JavaSnippetRuntime extends JavaRuntime {
 "    }\n" +
 "}\n";
 
-    private String[] _sharedModules;
+    private String[] _externalImports;
+    private String[] _externalModules;
     private String _runnableClassName;
 
     @Override
     protected Map<String, String> createSources(Jist jist) throws IOException, JistErrorException {
         JistSource metadata = jist.getSource(JavaSource.METADATA_SOURCE_NAME);
         if (metadata != null) {
-            _sharedModules = JavaSource.getModules(metadata);
+            _externalImports = JavaSource.getImports(metadata);
+            _externalModules = JavaSource.getModules(metadata);
         }
 
         JistSource source = jist.getSource(JavaSource.DEFAULT_SOURCE_NAME);
-        if (_sharedModules != null) {
-            for (String module : _sharedModules) {
-                JavaSource.addModule(source, module);
+        if (_externalImports != null) {
+            for (String s : _externalImports) {
+                JavaSource.addImport(source, s);
+            }
+        }
+        if (_externalModules != null) {
+            for (String s : _externalModules) {
+                JavaSource.addModule(source, s);
             }
         }
 
