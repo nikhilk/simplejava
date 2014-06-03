@@ -1,16 +1,19 @@
-Loading jists
-- GitHub gist api
+Code
+- runtime specific config
+- preprocessing only java files in multi-file jists having non-java files
+- jist.java for metadata (in multi-file jist scenarios)
 
 Maven support
 - Custom repositories
 - Transitive closure of dependencies
+- Reference to latest version of artifact
 
 Runtimes
 - HTTP server
 
 Expanders
-- JSON literal
 - RegEx patterns
+- POJO/Tuple
 
 Compilation
 - Error handling and reporting
@@ -23,7 +26,6 @@ Compilation
 Architecture
 - Dependency injection
 - Extensibility (eg. runtime extensions)
-- Multi-file jists ... runtime vs. session abstractions
 
 Usability
 - Docs
