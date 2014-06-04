@@ -63,7 +63,7 @@ final class ApplicationOptions extends JistRuntimeOptions {
     }
 
     @SuppressWarnings("unchecked")
-    public static ApplicationOptions fromArguments(String[] args) throws IOException {
+    public static ApplicationOptions fromArguments(String[] args) {
         ApplicationOptions options = new ApplicationOptions();
 
         try {
@@ -94,13 +94,13 @@ final class ApplicationOptions extends JistRuntimeOptions {
                         options._error = "The file or directory " + value + " does not exist.";
                     }
                     else {
-                        options._location = location.getCanonicalPath();
+                        options._location = Files.getPath(location);
                         if (location.isFile()) {
                             options._singleFile = true;
-                            basePath = location.getParentFile().getCanonicalPath();
+                            basePath = Files.getPath(location.getParentFile());
                         }
                         else {
-                            basePath = location.getCanonicalPath();
+                            basePath = options._location;
                         }
                     }
                 }

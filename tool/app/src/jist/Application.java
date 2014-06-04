@@ -11,6 +11,9 @@ import jist.core.jists.*;
 
 public final class Application {
 
+    private Application() {
+    }
+
     private static JistRuntime createRuntime(ApplicationOptions options) {
         JavaRuntime runtime;
         if (options.getRuntime().equals("eval")) {
@@ -24,7 +27,7 @@ public final class Application {
         return runtime;
     }
 
-    private static Jist createJist(JistRuntime runtime, ApplicationOptions options) throws Exception {
+    private static Jist createJist(JistRuntime runtime, ApplicationOptions options) {
         String location = options.getLocation();
 
         Jist jist;
@@ -49,20 +52,20 @@ public final class Application {
         return jist;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         ApplicationOptions options = ApplicationOptions.fromArguments(args);
         if (options.showHelp()) {
             System.out.println(options.getHelpContent());
             return;
         }
 
-        try {
-            JistRuntime runtime = createRuntime(options);
-            Jist jist = createJist(runtime, options);
+        JistRuntime runtime = createRuntime(options);
+        Jist jist = createJist(runtime, options);
 
+        try {
             runtime.execute(jist);
         }
-        catch (JistErrorException e) {
+        catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
