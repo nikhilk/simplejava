@@ -9,12 +9,19 @@ import jist.core.java.*;
 import jist.core.java.runtimes.*;
 import jist.core.jists.*;
 
-public final class Application {
+public final class Application implements JistErrorHandler {
 
-    private Application() {
+    private final ApplicationOptions _options;
+    private final JistRuntime _runtime;
+    private final Jist _jist;
+
+    private Application(ApplicationOptions options) {
+        _options = options;
+        _runtime = createRuntime(options);
+        _jist = createJist(_runtime, options);
     }
 
-    private static JistRuntime createRuntime(ApplicationOptions options) {
+    private JistRuntime createRuntime(ApplicationOptions options) {
         JavaRuntime runtime;
         if (options.getRuntime().equals("eval")) {
             runtime = new JavaEvalRuntime();
@@ -27,7 +34,7 @@ public final class Application {
         return runtime;
     }
 
-    private static Jist createJist(JistRuntime runtime, ApplicationOptions options) {
+    private Jist createJist(JistRuntime runtime, ApplicationOptions options) {
         String location = options.getLocation();
 
         Jist jist;
@@ -59,14 +66,28 @@ public final class Application {
             return;
         }
 
-        JistRuntime runtime = createRuntime(options);
-        Jist jist = createJist(runtime, options);
+        Application app = new Application(options);
+        app.run();
+    }
 
+    private void run() {
         try {
-            runtime.execute(jist);
+            _runtime.execute(_jist, this);
         }
         catch (Exception e) {
             System.out.println(e.getMessage());
+            e.printStackTrace();
         }
+    }
+
+    @Override
+    public void handleError(String location, int lineNumber, String error) {
+        // TODO: Implement this
+    }
+
+    @Override
+    public void handleException(Exception e) {
+        System.out.println(e.getMessage());
+        e.printStackTrace();
     }
 }

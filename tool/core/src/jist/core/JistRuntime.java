@@ -12,9 +12,10 @@ public interface JistRuntime {
     /**
      * Executes the specified jist.
      * @param jist the jist to execute.
+     * @param errorHandler the error handler to report errors to.
      * @throws Exception
      */
-    public void execute(Jist jist) throws Exception;
+    public void execute(Jist jist, JistErrorHandler errorHandler) throws Exception;
 
     /**
      * Initializes the runtime.

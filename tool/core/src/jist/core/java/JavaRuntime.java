@@ -51,7 +51,7 @@ public abstract class JavaRuntime implements JistRuntime {
      * {@inheritDoc}
      */
     @Override
-    public void execute(Jist jist) throws Exception {
+    public void execute(Jist jist, JistErrorHandler errorHandler) throws Exception {
         Map<String, String> sources = createSources(jist);
         ClassFactory classFactory = ClassFactory.create(_dependencies, sources);
 
