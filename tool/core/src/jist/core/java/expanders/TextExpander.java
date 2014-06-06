@@ -27,7 +27,8 @@ public final class TextExpander implements JistExpander {
      * {@inheritDoc}
      */
     @Override
-    public String expand(JistSource source, String macro, String declaration, String data) throws JistErrorException {
+    public String expand(JistSource source, String macro, String declaration, String data)
+        throws JistErrorException {
         String str = Strings.escape(data);
         return String.format(TEXT_CODE_TEMPLATE, declaration, str);
     }

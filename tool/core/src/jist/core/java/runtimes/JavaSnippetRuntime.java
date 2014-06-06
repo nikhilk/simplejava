@@ -4,7 +4,6 @@
 
 package jist.core.java.runtimes;
 
-import java.io.*;
 import java.util.*;
 import jist.core.*;
 import jist.core.java.*;
@@ -23,7 +22,7 @@ public final class JavaSnippetRuntime extends JavaRuntime {
     private String _runnableClassName;
 
     @Override
-    protected Map<String, String> createSources(Jist jist) throws IOException, JistErrorException {
+    protected Map<String, String> createSources(Jist jist) {
         JistSource metadata = jist.getSource(JavaSource.METADATA_SOURCE_NAME);
         if (metadata != null) {
             _externalImports = JavaSource.getImports(metadata);
@@ -31,6 +30,9 @@ public final class JavaSnippetRuntime extends JavaRuntime {
         }
 
         JistSource source = jist.getSource(JavaSource.DEFAULT_SOURCE_NAME);
+        if (source == null) {
+            getErrorHandler().handleError(null, 0, "Unable to read source code.");
+        }
         if (_externalImports != null) {
             for (String s : _externalImports) {
                 JavaSource.addImport(source, s);

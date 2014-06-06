@@ -35,7 +35,8 @@ public final class JsonExpander implements JistExpander {
      * {@inheritDoc}
      */
     @Override
-    public String expand(JistSource source, String macro, String declaration, String data) throws JistErrorException {
+    public String expand(JistSource source, String macro, String declaration, String data)
+        throws JistErrorException {
         URI moduleURI = createJsonModule();
         _runtime.getDependencies().addModule(moduleURI);
 

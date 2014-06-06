@@ -22,4 +22,10 @@ public interface JistErrorHandler {
      * @param e the exception raised when executing the jist.
      */
     public void handleException(Exception e);
+
+    /**
+     * Checks if there were any errors reported.
+     * @return true if there were prior errors, false otherwise.
+     */
+    public boolean hasErrors();
 }

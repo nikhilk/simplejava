@@ -4,8 +4,8 @@
 
 package jist.core;
 
-import java.io.*;
 import java.util.*;
+import jist.util.*;
 
 /**
  * Represents a unit of source code within a Jist.
@@ -36,10 +36,12 @@ public final class JistSource {
     /**
      * Applies the specified preprocessor on the source code.
      * @param preprocessor the preprocessor containing preprocessing logic.
-     * @throws IOException
+     * @param errorHandler the error handler to report errors to.
+     * @return true if the preprocessor was applied successfully, false otherwise.
      */
-    public void applyPreprocessor(JistPreprocessor preprocessor) throws IOException {
-        _processedText = preprocessor.process(this);
+    public boolean applyPreprocessor(JistPreprocessor preprocessor, JistErrorHandler errorHandler) {
+        _processedText = preprocessor.process(this, errorHandler);
+        return Strings.hasValue(_processedText);
     }
 
     /**

@@ -38,19 +38,15 @@ final class JarDependencies implements JistDependencies {
         _jars = new ArrayList<String>();
     }
 
-    public ClassLoader getClassLoader() throws JistErrorException {
+    public ClassLoader getClassLoader() {
         if (!_resolved) {
             resolveModules();
-        }
-
-        if (_classLoader == null) {
-            return Jist.class.getClassLoader();
         }
 
         return _classLoader;
     }
 
-    public String getClassPath() throws JistErrorException {
+    public String getClassPath() {
         if (!_resolved) {
             resolveModules();
         }
@@ -87,7 +83,7 @@ final class JarDependencies implements JistDependencies {
         return null;
     }
 
-    private void resolveModules() throws JistErrorException {
+    private void resolveModules() {
         if (_resolved) {
             return;
         }
@@ -99,22 +95,25 @@ final class JarDependencies implements JistDependencies {
             for (int i = 0; i < urls.length; i++) {
                 String jar = _jars.get(i);
 
-                try {
-                    if (i != 0) {
-                        sb.append(File.pathSeparatorChar);
-                    }
-                    sb.append(jar);
+                if (i != 0) {
+                    sb.append(File.pathSeparatorChar);
+                }
+                sb.append(jar);
 
+                try {
                     URL url = new URL("jar", "", "file://" + jar + "!/");
                     urls[i] = url;
                 }
-                catch (Exception e) {
-                    throw new JistErrorException("Unable to load a required jar " + jar);
+                catch (MalformedURLException e) {
                 }
             }
 
             _classPath = sb.toString();
             _classLoader = new URLClassLoader(urls);
+        }
+        else {
+            _classPath = "";
+            _classLoader = Jist.class.getClassLoader();
         }
 
         _resolved = true;

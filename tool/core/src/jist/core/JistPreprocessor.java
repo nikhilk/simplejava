@@ -22,7 +22,7 @@ public abstract class JistPreprocessor {
 
     private final HashMap<String, JistExpander> _expanders;
 
-    private BufferedReader _textReader;
+    private TextReader _textReader;
     private TextWriter _textWriter;
 
     /**
@@ -35,13 +35,10 @@ public abstract class JistPreprocessor {
     /**
      * Processes the text associated with the specified source.
      * @param source the source whose text should be processed.
-     * @return the processed text.
-     * @throws IOException
+     * @return the processed text, null if there was an error.
      */
-    public String process(JistSource source) throws IOException {
-        String text = source.getText();
-
-        _textReader = new BufferedReader(new StringReader(text));
+    public String process(JistSource source, JistErrorHandler errorHandler) {
+        _textReader = new TextReader(source.getText());
         _textWriter = new TextWriter();
 
         int lineNumber = 0;
@@ -63,17 +60,13 @@ public abstract class JistPreprocessor {
                     _textWriter.writeLine(line);
                 }
             }
-
-            text = _textWriter.toString();
         }
         catch (JistErrorException e) {
-            System.out.println("Error: " + e.getMessage() + "[" + lineNumber + "]");
-        }
-        finally {
-            _textWriter.close();
+            errorHandler.handleError(source.getName(), lineNumber, e.getMessage());
+            return null;
         }
 
-        return text;
+        return _textWriter.toString();
     }
 
     /**
@@ -87,7 +80,7 @@ public abstract class JistPreprocessor {
         return line;
     }
 
-    private int processMacro(JistSource source, String startLine) throws IOException, JistErrorException {
+    private int processMacro(JistSource source, String startLine) throws JistErrorException {
         int lineCount = 0;
 
         Matcher m = macroPattern.matcher(startLine);
@@ -145,6 +138,24 @@ public abstract class JistPreprocessor {
         _expanders.put(name, expander);
     }
 
+
+    private final class TextReader {
+
+        private final BufferedReader _reader;
+
+        public TextReader(String text) {
+            _reader = new BufferedReader(new StringReader(text));
+        }
+
+        public String readLine() throws JistErrorException {
+            try {
+                return _reader.readLine();
+            }
+            catch (IOException e) {
+                throw new JistErrorException("Failed to read jist source.");
+            }
+        }
+    }
 
     private final class TextWriter extends StringWriter {
 

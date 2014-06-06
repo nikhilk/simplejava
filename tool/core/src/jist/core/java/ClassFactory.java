@@ -9,7 +9,6 @@ import java.net.*;
 import java.security.*;
 import java.util.*;
 import javax.tools.*;
-import jist.core.*;
 import jist.util.*;
 
 final class ClassFactory extends ForwardingJavaFileManager<StandardJavaFileManager> {
@@ -39,8 +38,7 @@ final class ClassFactory extends ForwardingJavaFileManager<StandardJavaFileManag
         _classes = new HashMap<String, Class<?>>();
     }
 
-    public static ClassFactory create(JarDependencies dependencies, Map<String, String> sources)
-        throws JistErrorException {
+    public static ClassFactory create(JarDependencies dependencies, Map<String, String> sources) {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         List<String> options = new ArrayList<String>();
 

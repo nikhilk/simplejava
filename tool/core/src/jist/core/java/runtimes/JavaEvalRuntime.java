@@ -4,7 +4,6 @@
 
 package jist.core.java.runtimes;
 
-import java.io.*;
 import java.util.*;
 import jist.core.*;
 import jist.core.java.*;
@@ -26,10 +25,13 @@ public final class JavaEvalRuntime extends JavaRuntime {
     private String _runnableClassName;
 
     @Override
-    protected Map<String, String> createSources(Jist jist) throws IOException, JistErrorException {
+    protected Map<String, String> createSources(Jist jist) {
         JistSource source = jist.getSource(JavaSource.DEFAULT_SOURCE_NAME);
-        String className = JavaSource.getClassName(source);
+        if (source == null) {
+            getErrorHandler().handleError(null, 0, "Unable to read source code.");
+        }
 
+        String className = JavaSource.getClassName(source);
         _runnableClassName = JavaSource.getFullClassName(source);
 
         String classImplementation = String.format(JAVA_SOURCE_TEMPLATE, className, source.getProcessedText());

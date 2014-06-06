@@ -4,7 +4,6 @@
 
 package jist.core.java;
 
-import java.io.*;
 import java.util.*;
 import jist.core.*;
 import jist.core.java.expanders.*;
@@ -28,10 +27,8 @@ public abstract class JavaRuntime implements JistRuntime {
      * Generates code to be compiled for the specified Jist.
      * @param jist the jist to convert to compilabe code.
      * @return compilable code stored in form of file name/content tuples.
-     * @throws IOException
-     * @throws JistErrorException
      */
-    protected abstract Map<String, String> createSources(Jist jist) throws IOException, JistErrorException;
+    protected abstract Map<String, String> createSources(Jist jist);
 
     /**
      * Gets the dependencies associated with the current runtime/jist.
@@ -60,8 +57,12 @@ public abstract class JavaRuntime implements JistRuntime {
      * {@inheritDoc}
      */
     @Override
-    public void execute(Jist jist) throws Exception {
+    public void execute(Jist jist) {
         Map<String, String> sources = createSources(jist);
+        if (sources == null) {
+            return;
+        }
+
         ClassFactory classFactory = ClassFactory.create(_dependencies, sources);
 
         ClassLoader classLoader = classFactory.getClassLoader();

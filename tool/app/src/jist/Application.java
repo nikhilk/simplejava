@@ -14,6 +14,8 @@ public final class Application implements JistErrorHandler {
     private final JistRuntime _runtime;
     private final Jist _jist;
 
+    private boolean _errors;
+
     private Application(ApplicationOptions options) {
         _runtime = createRuntime(options);
         _jist = createJist(_runtime, options);
@@ -49,11 +51,7 @@ public final class Application implements JistErrorHandler {
             jist = new DirectoryJist(location);
         }
 
-        JistPreprocessor preprocessor = runtime.getPreprocessor();
-        if (preprocessor != null) {
-            jist.addPreprocessor(preprocessor);
-        }
-
+        jist.initialize(runtime.getPreprocessor(), this);
         return jist;
     }
 
@@ -80,12 +78,21 @@ public final class Application implements JistErrorHandler {
 
     @Override
     public void handleError(String location, int lineNumber, String error) {
+        _errors = true;
+
         // TODO: Implement this
     }
 
     @Override
     public void handleException(Exception e) {
+        _errors = true;
+
         System.out.println(e.getMessage());
         e.printStackTrace();
+    }
+
+    @Override
+    public boolean hasErrors() {
+        return _errors;
     }
 }
