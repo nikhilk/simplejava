@@ -64,7 +64,7 @@ public final class JavaSnippetRuntime extends JavaRuntime {
             jistInstance.run();
         }
         catch (Exception e) {
-            e.printStackTrace();
+            getErrorHandler().handleException(e);
         }
     }
 }

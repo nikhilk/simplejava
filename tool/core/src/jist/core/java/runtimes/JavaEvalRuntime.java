@@ -51,7 +51,7 @@ public final class JavaEvalRuntime extends JavaRuntime {
             jistInstance.run();
         }
         catch (Exception e) {
-            e.printStackTrace();
+            getErrorHandler().handleException(e);
         }
     }
 }

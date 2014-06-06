@@ -11,12 +11,10 @@ import jist.core.jists.*;
 
 public final class Application implements JistErrorHandler {
 
-    private final ApplicationOptions _options;
     private final JistRuntime _runtime;
     private final Jist _jist;
 
     private Application(ApplicationOptions options) {
-        _options = options;
         _runtime = createRuntime(options);
         _jist = createJist(_runtime, options);
     }
@@ -30,7 +28,7 @@ public final class Application implements JistErrorHandler {
             runtime = new JavaSnippetRuntime();
         }
 
-        runtime.initialize(options);
+        runtime.initialize(options, this);
         return runtime;
     }
 
@@ -72,7 +70,7 @@ public final class Application implements JistErrorHandler {
 
     private void run() {
         try {
-            _runtime.execute(_jist, this);
+            _runtime.execute(_jist);
         }
         catch (Exception e) {
             System.out.println(e.getMessage());

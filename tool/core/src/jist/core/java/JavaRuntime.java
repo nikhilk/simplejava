@@ -14,6 +14,7 @@ import jist.core.java.expanders.*;
  */
 public abstract class JavaRuntime implements JistRuntime {
 
+    private JistErrorHandler _errorHandler;
     private JarDependencies _dependencies;
     private JavaPreprocessor _preprocessor;
 
@@ -41,6 +42,14 @@ public abstract class JavaRuntime implements JistRuntime {
     }
 
     /**
+     * Gets the error handler to report errors to.
+     * @return the error handler.
+     */
+    public JistErrorHandler getErrorHandler() {
+        return _errorHandler;
+    }
+
+    /**
      * Runs the specified jist once its associated code has been compiled.
      * @param jist the jist to run.
      * @param classLoader the class loader to load compiled classes.
@@ -51,7 +60,7 @@ public abstract class JavaRuntime implements JistRuntime {
      * {@inheritDoc}
      */
     @Override
-    public void execute(Jist jist, JistErrorHandler errorHandler) throws Exception {
+    public void execute(Jist jist) throws Exception {
         Map<String, String> sources = createSources(jist);
         ClassFactory classFactory = ClassFactory.create(_dependencies, sources);
 
@@ -65,7 +74,8 @@ public abstract class JavaRuntime implements JistRuntime {
      * {@inheritDoc}
      */
     @Override
-    public void initialize(JistRuntimeOptions options) {
+    public void initialize(JistRuntimeOptions options, JistErrorHandler errorHandler) {
+        _errorHandler = errorHandler;
         _dependencies = new JarDependencies(options);
 
         _preprocessor = new JavaPreprocessor(this);
